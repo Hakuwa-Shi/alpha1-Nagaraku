@@ -33,24 +33,16 @@
 
         <div id="tab-tasks" class="tab-content">
             <h3 class="section-title">未完了のタスク</h3>
-            <div class="card">
-                <div class="todo-item">
-                    <input type="checkbox"> 
-                    <span>数学プリント P.42-45</span>
-                    <span class="classroom-tag">Classroom</span>
-                </div>
-                <div class="todo-item">
-                    <input type="checkbox"> 
-                    <span>英単語 100個暗記</span>
-                    <span class="classroom-tag">Classroom</span>
-                </div>
-                <div class="todo-item">
-                    <input type="checkbox"> 
-                    <span>部活のミーティング資料準備</span>
-                </div>
+            
+            <div class="card todo-form-card">
+                <input type="text" id="todo-input" placeholder="新しいタスクを入力...">
+                <button id="todo-add-btn">追加</button>
             </div>
+        
+            <div id="todo-list">
+                </div>
         </div>
-
+        
         <div id="tab-account" class="tab-content">
             <div class="card profile-card">
                 <div class="profile-icon">👤</div>
