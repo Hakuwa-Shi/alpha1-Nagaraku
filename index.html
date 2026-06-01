@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>スクール・アシスト</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="app-container">
+    <header id="header-title">今日の時間割</header>
+
+    <main>
+        <div id="tab-schedule" class="tab-content active">
+            <div class="card">
+                <div class="card-title">1限 (8:50 - 9:40)</div>
+                <div class="card-main">現代文 📖</div>
+            </div>
+            <div class="card">
+                <div class="card-title">2限 (9:50 - 10:40)</div>
+                <div class="card-main">数学II 📐</div>
+            </div>
+            <div class="card">
+                <div class="card-title">3限 (10:50 - 11:40)</div>
+                <div class="card-main">英語 🗣️</div>
+            </div>
+            <div class="card">
+                <div class="card-title">4限 (11:50 - 12:40)</div>
+                <div class="card-main">物理 ⚡</div>
+            </div>
+        </div>
+
+        <div id="tab-tasks" class="tab-content">
+            <h3 class="section-title">未完了のタスク</h3>
+            <div class="card">
+                <div class="todo-item">
+                    <input type="checkbox"> 
+                    <span>数学プリント P.42-45</span>
+                    <span class="classroom-tag">Classroom</span>
+                </div>
+                <div class="todo-item">
+                    <input type="checkbox"> 
+                    <span>英単語 100個暗記</span>
+                    <span class="classroom-tag">Classroom</span>
+                </div>
+                <div class="todo-item">
+                    <input type="checkbox"> 
+                    <span>部活のミーティング資料準備</span>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-account" class="tab-content">
+            <div class="card profile-card">
+                <div class="profile-icon">👤</div>
+                <div class="card-main" id="account-name">ゲストユーザー</div>
+                <p id="account-status">Classroomと連携するにはログインしてください。</p>
+                <button id="login-btn">Googleでログイン</button>
+            </div>
+        </div>
+    </main>
+
+    <nav class="bottom-nav">
+        <button class="nav-btn active" onclick="switchTab('schedule', '今日の時間割', this)">
+            <span class="nav-icon">📅</span>
+            <span>時間割</span>
+        </button>
+        <button class="nav-btn" onclick="switchTab('tasks', '課題・Todo', this)">
+            <span class="nav-icon">✓</span>
+            <span>タスク</span>
+        </button>
+        <button class="nav-btn" onclick="switchTab('account', 'アカウント', this)">
+            <span class="nav-icon">👤</span>
+            <span>設定</span>
+        </button>
+    </nav>
+</div>
+
+    <script src="script.js" type="module"></script>
+</body>
+</html>
