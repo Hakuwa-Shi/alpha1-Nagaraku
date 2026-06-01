@@ -80,25 +80,35 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- Todoの追加処理 ---
+    // --- Todoの追加処理（調査モード） ---
     todoAddBtn.addEventListener('click', async () => {
-        const taskText = todoInput.value.trim();
-        if (!taskText) return; // 空っぽなら何もしない
+        console.log("【チェック1】追加ボタンが押されました！");
         
+        const taskText = todoInput.value.trim();
+        console.log("【チェック2】入力された文字は:", taskText);
+        
+        if (!taskText) {
+            console.log("⚠️文字が空っぽなので処理を終了しました");
+            return; 
+        }
+        
+        console.log("【チェック3】現在のログインユーザーのデータ:", auth.currentUser);
         if (!auth.currentUser) {
             alert("タスクを追加するにはログインが必要です。");
             return;
         }
 
         try {
-            // Firestoreの "todos" というコレクションにデータを保存
+            console.log("【チェック4】Firestoreへのデータ送信を開始します...");
             await addDoc(collection(db, "todos"), {
-                uid: auth.currentUser.uid, // 👈 ここで誰のデータかを保存！
+                uid: auth.currentUser.uid,
                 text: taskText,
-                createdAt: new Date() // 並び替え用のタイムスタンプ
+                createdAt: new Date()
             });
+            console.log("【チェック5】Firestoreへの保存が完全に成功しました！");
             todoInput.value = ""; // 入力欄を空にする
         } catch (error) {
-            console.error("データ追加エラー:", error);
+            console.error("❌データ追加でエラーが発生しました:", error);
         }
     });
 
