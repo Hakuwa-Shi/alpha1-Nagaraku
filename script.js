@@ -1,9 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-// Firestoreの機能をインポート
 import { getFirestore, collection, addDoc, onSnapshot, query, where, doc, deleteDoc, orderBy, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-// Firebaseの設定値
 const firebaseConfig = {
     apiKey: "AIzaSyDRJK_M5KuILJ3kkOraiEOQNKoJ1fqe7_c", 
     authDomain: "nagata-tankyu-404.firebaseapp.com", 
@@ -18,7 +16,6 @@ const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 const db = getFirestore(app);
 
-// リアルタイム通信の監視を止めるための関数を入れておく変数
 let unsubscribeTodos = null;
 
 // タブ切り替え関数
@@ -34,93 +31,215 @@ window.switchTab = function(tabId, title, btnElement) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    // ⚙️ HTMLの要素をすべて最初にまとめて取得
-    const loginBtn = document.getElementById('login-btn');
+    // 画面要素の取得
+    const loginScreen = document.getElementById('login-screen');
+    const setupScreen = document.getElementById('setup-screen');
+    const mainContent = document.getElementById('main-content');
+    const bottomNav = document.getElementById('bottom-nav');
+    const headerTitle = document.getElementById('header-title');
+
+    // 各種ボタンと要素
+    const mainLoginBtn = document.getElementById('main-login-btn');
+    const logoutBtn = document.getElementById('logout-btn');
     const accountName = document.getElementById('account-name');
     const accountStatus = document.getElementById('account-status');
-    
     const todoInput = document.getElementById('todo-input');
     const todoAddBtn = document.getElementById('todo-add-btn');
     const todoList = document.getElementById('todo-list');
-
-    const profileSettings = document.getElementById('profile-settings');
+    
+    // アカウント画面の設定フォーム
     const profileNickname = document.getElementById('profile-nickname');
     const profileGrade = document.getElementById('profile-grade');
     const profileClass = document.getElementById('profile-class');
     const profileNumber = document.getElementById('profile-number');
     const profileSaveBtn = document.getElementById('profile-save-btn');
 
-    // --- Googleログイン・ログアウト処理 ---
-    loginBtn.addEventListener('click', () => {
-        if (!auth.currentUser) {
-            signInWithPopup(auth, provider).catch((error) => {
-                console.error("エラー:", error);
-                alert("ログインに失敗しました。");
-            });
+    // 初期設定画面のフォーム
+    const setupNickname = document.getElementById('setup-nickname');
+    const setupGrade = document.getElementById('setup-grade');
+    const setupClass = document.getElementById('setup-class');
+    const setupNumber = document.getElementById('setup-number');
+    const setupSaveBtn = document.getElementById('setup-save-btn');
+
+    // --- ログイン処理 ---
+    mainLoginBtn.addEventListener('click', () => {
+        signInWithPopup(auth, provider).catch((error) => {
+            console.error("ログインエラー:", error);
+            alert("ログインに失敗しました。");
+        });
+    });
+
+    // --- ログアウト処理 ---
+    logoutBtn.addEventListener('click', () => {
+        signOut(auth);
+    });
+
+    // --- ログイン状態の監視 ---
+    onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            // ログイン済みの場合は、まずプロフィールデータがあるか確認する
+            const uid = user.uid;
+            const userDocRef = doc(db, "users", uid);
+            
+            try {
+                const userSnap = await getDoc(userDocRef);
+                
+                if (userSnap.exists()) {
+                    // データがある（＝すでに初期設定済み）なら、メイン画面を表示
+                    showMainApp(user, userSnap.data());
+                } else {
+                    // データがない（＝初めてのログイン）なら、初期設定画面を表示
+                    showSetupScreen();
+                }
+            } catch (error) {
+                console.error("プロフィール確認エラー:", error);
+            }
         } else {
-            signOut(auth);
+            // ログアウト時（未ログイン時）は、強制ログイン画面を表示
+            showLoginScreen();
         }
     });
 
-    // --- ユーザーのログイン状態を監視するリスナー ---
-    onAuthStateChanged(auth, (user) => {
-        if (user) {
-            // 【ログイン時】
-            accountName.innerText = user.displayName;
-            accountStatus.innerText = `${user.email} でログインしています`;
-            loginBtn.innerText = "ログアウト";
-            loginBtn.style.backgroundColor = "var(--danger-color)";
-            
-            // プロフィール設定フォームを表示して、データを読み込む
-            profileSettings.style.display = "block";
-            loadUserProfile(user.uid);
-            loadUserTodos(user.uid);
-        } else {
-            // 【ログアウト時】
-            accountName.innerText = "ゲストユーザー";
-            document.getElementById('account-profile-info').innerText = ""; 
-            accountStatus.innerText = "Classroomと連携するにはログインしてください。";
-            document.getElementById('developer-badge').style.display = "none"; 
-            profileSettings.style.display = "none";
+    // --- 画面切り替え用の関数 ---
+    
+    // 1. 強制ログイン画面を表示
+    function showLoginScreen() {
+        loginScreen.style.display = 'flex';
+        setupScreen.style.display = 'none';
+        mainContent.style.display = 'none';
+        bottomNav.style.display = 'none';
+        headerTitle.style.display = 'none';
+        
+        if (unsubscribeTodos) unsubscribeTodos();
+    }
 
-            if (unsubscribeTodos) unsubscribeTodos();
-            todoList.innerHTML = '<p style="text-align:center; color:#888; padding:20px;">ログインするとタスクを管理できます</p>';
+    // 2. 初期設定画面を表示
+    function showSetupScreen() {
+        loginScreen.style.display = 'none';
+        setupScreen.style.display = 'flex';
+        mainContent.style.display = 'none';
+        bottomNav.style.display = 'none';
+        headerTitle.style.display = 'none';
+    }
+
+    // 3. メイン画面（アプリ本体）を表示
+    function showMainApp(user, data) {
+        loginScreen.style.display = 'none';
+        setupScreen.style.display = 'none';
+        mainContent.style.display = 'block';
+        bottomNav.style.display = 'flex';
+        headerTitle.style.display = 'block';
+
+        // アカウント画面の表示を更新
+        accountStatus.innerText = `${user.email} でログインしています`;
+        
+        // 読み込んだデータをアカウント画面の設定フォームにもセット
+        profileNickname.value = data.nickname || "";
+        profileGrade.value = data.grade || "1";
+        profileClass.value = data.classNum || "1"; 
+        profileNumber.value = data.studentNum || "";
+        
+        if (data.nickname) {
+            accountName.innerText = data.nickname;
+        }
+        
+        if (data.grade && data.classNum && data.studentNum) {
+            document.getElementById('account-profile-info').innerText = `${data.grade}年 ${data.classNum}組 ${data.studentNum}番`;
+            checkDeveloperBadge(data.grade, data.classNum, data.studentNum);
+        }
+
+        // タスクの読み込みを開始
+        loadUserTodos(user.uid);
+    }
+
+    // --- 初期設定画面の「はじめる」ボタン処理 ---
+    setupSaveBtn.addEventListener('click', async () => {
+        if (!auth.currentUser) return;
+        
+        const nickname = setupNickname.value.trim();
+        const grade = setupGrade.value;
+        const classNum = setupClass.value;
+        const studentNum = setupNumber.value;
+
+        // 入力チェック
+        if (!nickname || !studentNum) {
+            alert("ニックネームと出席番号は必ず入力してください！");
+            return;
+        }
+
+        const uid = auth.currentUser.uid;
+        const profileData = {
+            nickname: nickname,
+            grade: grade,
+            classNum: classNum,
+            studentNum: studentNum,
+            updatedAt: new Date()
+        };
+
+        try {
+            await setDoc(doc(db, "users", uid), profileData, { merge: true });
+            // 保存に成功したら、そのままメイン画面へ移行
+            showMainApp(auth.currentUser, profileData);
+        } catch (error) {
+            console.error("初期設定エラー:", error);
+            alert("設定の保存に失敗しました。");
+        }
+    });
+
+    // --- アカウント画面の「保存する」ボタン処理（既存の処理） ---
+    profileSaveBtn.addEventListener('click', async () => {
+        if (!auth.currentUser) return;
+        
+        const uid = auth.currentUser.uid;
+        const profileData = {
+            nickname: profileNickname.value.trim(),
+            grade: profileGrade.value,
+            classNum: profileClass.value,
+            studentNum: profileNumber.value,
+            updatedAt: new Date()
+        };
+
+        if (!profileData.nickname || !profileData.studentNum) {
+            alert("ニックネームと出席番号は必ず入力してください！");
+            return;
+        }
+
+        try {
+            await setDoc(doc(db, "users", uid), profileData, { merge: true });
+            alert("プロフィールを更新しました！");
+            
+            if (profileData.nickname) {
+                accountName.innerText = profileData.nickname;
+            }
+            
+            if (profileData.grade && profileData.classNum && profileData.studentNum) {
+                document.getElementById('account-profile-info').innerText = `${profileData.grade}年 ${profileData.classNum}組 ${profileData.studentNum}番`;
+                checkDeveloperBadge(profileData.grade, profileData.classNum, profileData.studentNum);
+            }
+        } catch (error) {
+            console.error("プロフィール保存エラー:", error);
+            alert("保存に失敗しました。");
         }
     });
 
     // --- Todoの追加処理 ---
     todoAddBtn.addEventListener('click', async () => {
-        console.log("【チェック1】追加ボタンが押されました！");
-        
         const taskText = todoInput.value.trim();
-        console.log("【チェック2】入力された文字は:", taskText);
-        
-        if (!taskText) {
-            console.log("⚠️文字が空っぽなので処理を終了しました");
-            return; 
-        }
-        
-        console.log("【チェック3】現在のログインユーザーのデータ:", auth.currentUser);
-        if (!auth.currentUser) {
-            alert("タスクを追加するにはログインが必要です。");
-            return;
-        }
+        if (!taskText || !auth.currentUser) return; 
 
         try {
-            console.log("【チェック4】Firestoreへのデータ送信を開始します...");
             await addDoc(collection(db, "todos"), {
                 uid: auth.currentUser.uid,
                 text: taskText,
                 createdAt: new Date()
             });
-            console.log("【チェック5】Firestoreへの保存が完全に成功しました！");
             todoInput.value = ""; 
         } catch (error) {
-            console.error("❌データ追加でエラーが発生しました:", error);
+            console.error("データ追加エラー:", error);
         }
     });
 
-    // --- ログインユーザーのTodoをリアルタイムに読み込む関数 ---
+    // --- Todoの読み込み関数 ---
     function loadUserTodos(uid) {
         if (unsubscribeTodos) unsubscribeTodos();
 
@@ -166,9 +285,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // === 👤 プロフィール（クラス情報）機能 ===
-    
-    // 開発者バッジの判定関数
+    // --- 開発者バッジの判定関数 ---
     function checkDeveloperBadge(grade, classNum, studentNum) {
         const devBadge = document.getElementById('developer-badge');
         if (grade === "2" && classNum === "6" && studentNum === "16") {
@@ -177,62 +294,4 @@ document.addEventListener('DOMContentLoaded', () => {
             devBadge.style.display = "none";
         }
     }
-
-    // ログインユーザーのプロフィールを読み込む関数
-    async function loadUserProfile(uid) {
-        try {
-            const userDocRef = doc(db, "users", uid);
-            const userSnap = await getDoc(userDocRef);
-
-            if (userSnap.exists()) {
-                const data = userSnap.data();
-                profileNickname.value = data.nickname || "";
-                profileGrade.value = data.grade || "1";
-                profileClass.value = data.classNum || "1"; 
-                profileNumber.value = data.studentNum || "";
-                
-                if (data.nickname) {
-                    document.getElementById('account-name').innerText = data.nickname;
-                }
-                
-                if (data.grade && data.classNum && data.studentNum) {
-                    document.getElementById('account-profile-info').innerText = `${data.grade}年 ${data.classNum}組 ${data.studentNum}番`;
-                    checkDeveloperBadge(data.grade, data.classNum, data.studentNum);
-                }
-            }
-        } catch (error) {
-            console.error("プロフィール読み込みエラー:", error);
-        }
-    }
-
-    // 保存ボタンが押された時の処理
-    profileSaveBtn.addEventListener('click', async () => {
-        if (!auth.currentUser) return;
-        
-        const uid = auth.currentUser.uid;
-        const profileData = {
-            nickname: profileNickname.value.trim(),
-            grade: profileGrade.value,
-            classNum: profileClass.value,
-            studentNum: profileNumber.value,
-            updatedAt: new Date()
-        };
-
-        try {
-            await setDoc(doc(db, "users", uid), profileData, { merge: true });
-            alert("プロフィールを保存しました！");
-            
-            if (profileData.nickname) {
-                document.getElementById('account-name').innerText = profileData.nickname;
-            }
-            
-            if (profileData.grade && profileData.classNum && profileData.studentNum) {
-                document.getElementById('account-profile-info').innerText = `${profileData.grade}年 ${profileData.classNum}組 ${profileData.studentNum}番`;
-                checkDeveloperBadge(profileData.grade, profileData.classNum, profileData.studentNum);
-            }
-        } catch (error) {
-            console.error("プロフィール保存エラー:", error);
-            alert("保存に失敗しました。");
-        }
-    });
-}); // 👈 ここで綺麗に完結させました！
+});
