@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nagaraku</title>
-    <link rel="stylesheet" href="style.css?v=6">
+    <link rel="stylesheet" href="style.css?v=7">
     <style>
         /* 強制ログイン・初期設定画面用のスタイル */
         .overlay-screen {
@@ -108,6 +108,7 @@
                 <span class="header-logo-badge">N</span>
                 <span id="header-title">今日の時間割</span>
             </div>
+            
             <div class="header-user-container" id="header-user-container">
                 <button id="header-user-btn" class="header-user-btn" aria-label="ユーザーメニュー" style="display: none;">
                     <svg class="icon-svg" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5-4-8-4z"/></svg>
@@ -232,26 +233,6 @@
     </nav>
 </div>
 
-    <script>
-        // script.jsの読み込み完了後にヘッダーテキストをニックネームに書き換える監視処理
-        const observer = new MutationObserver(() => {
-            const container = document.getElementById('header-user-container');
-            const nicknameInput = document.getElementById('profile-nickname');
-            const gradeSelect = document.getElementById('profile-grade');
-            const classSelect = document.getElementById('profile-class');
-            const numberInput = document.getElementById('profile-number');
-            
-            if (container && nicknameInput && nicknameInput.value) {
-                const name = nicknameInput.value;
-                const grade = gradeSelect.value || "2";
-                const cls = classSelect.value || "6";
-                const num = numberInput.value || "16";
-                // 内部をニックネームとクラス情報の太字に書き換え
-                container.innerHTML = `<span style="font-weight: 800; color: white;">${name}さん<br>${grade}年${cls}組 ${num}番</span>`;
-            }
-        });
-        observer.observe(document.body, { childList: true, subtree: true });
-    </script>
     <script src="script.js" type="module"></script>
 </body>
 </html>
