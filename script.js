@@ -34,7 +34,7 @@ window.switchTab = function(tabId, title, btnElement) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    // ⚙️ HTMLの要素をすべて最初にまとめて取得（これで順番エラーを防ぎます）
+    // ⚙️ HTMLの要素をすべて最初にまとめて取得
     const loginBtn = document.getElementById('login-btn');
     const accountName = document.getElementById('account-name');
     const accountStatus = document.getElementById('account-status');
@@ -197,7 +197,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 if (data.grade && data.classNum && data.studentNum) {
                     document.getElementById('account-profile-info').innerText = `${data.grade}年 ${data.classNum}組 ${data.studentNum}番`;
-                    // 🛠️ データを読み込み終わった後にバッジ判定を実行！
                     checkDeveloperBadge(data.grade, data.classNum, data.studentNum);
                 }
             }
@@ -229,7 +228,6 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (profileData.grade && profileData.classNum && profileData.studentNum) {
                 document.getElementById('account-profile-info').innerText = `${profileData.grade}年 ${profileData.classNum}組 ${profileData.studentNum}番`;
-                // 🛠️ 保存が完全に成功した後にバッジ判定を実行！
                 checkDeveloperBadge(profileData.grade, profileData.classNum, profileData.studentNum);
             }
         } catch (error) {
@@ -237,4 +235,4 @@ document.addEventListener('DOMContentLoaded', () => {
             alert("保存に失敗しました。");
         }
     });
-});
+}); // 👈 ここで綺麗に完結させました！
