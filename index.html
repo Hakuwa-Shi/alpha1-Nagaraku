@@ -47,6 +47,9 @@
             <div class="card profile-card">
                 <div class="profile-icon">👤</div>
                 <div class="card-main" id="account-name">ゲストユーザー</div>
+                
+                <p id="account-profile-info" style="color: #666; font-size: 0.9rem; margin-top: 5px; font-weight: bold;"></p>
+                
                 <p id="account-status">Classroomと連携するにはログインしてください。</p>
                 <button id="login-btn">Googleでログイン</button>
             </div>
@@ -67,7 +70,16 @@
                 </div>
                 <div class="form-group">
                     <label>組</label>
-                    <input type="number" id="profile-class" placeholder="例: 3" min="1">
+                    <select id="profile-class">
+                        <option value="1">1組</option>
+                        <option value="2">2組</option>
+                        <option value="3">3組</option>
+                        <option value="4">4組</option>
+                        <option value="5">5組</option>
+                        <option value="6">6組</option>
+                        <option value="7">7組</option>
+                        <option value="8">8組</option>
+                    </select>
                 </div>
                 <div class="form-group">
                     <label>出席番号</label>

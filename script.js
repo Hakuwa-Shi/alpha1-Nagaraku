@@ -70,16 +70,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             loadUserTodos(user.uid);
         } else {
+            // 【ログアウト時】
             accountName.innerText = "ゲストユーザー";
+            document.getElementById('account-profile-info').innerText = ""; // ✨追加：クラス表示をクリア
             accountStatus.innerText = "Classroomと連携するにはログインしてください。";
-            loginBtn.innerText = "Googleでログイン";
-            loginBtn.style.backgroundColor = "var(--primary-color)";
-            
-            // 👇追加：設定フォームを隠す
-            profileSettings.style.display = "none";
-
-            if (unsubscribeTodos) unsubscribeTodos();
-            todoList.innerHTML = '<p style="text-align:center; color:#888; padding:20px;">ログインするとタスクを管理できます</p>';
         }
     });
 
@@ -178,23 +172,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const profileSaveBtn = document.getElementById('profile-save-btn');
 
     // ログインユーザーのプロフィールを読み込む関数
+    // ログインユーザーのプロフィールを読み込む関数
     async function loadUserProfile(uid) {
         try {
-            // "users" コレクションから、自分のUIDの名前がついたデータ箱を探す
             const userDocRef = doc(db, "users", uid);
             const userSnap = await getDoc(userDocRef);
 
             if (userSnap.exists()) {
-                // データがあればフォームにセット
                 const data = userSnap.data();
                 profileNickname.value = data.nickname || "";
                 profileGrade.value = data.grade || "1";
-                profileClass.value = data.classNum || "";
+                profileClass.value = data.classNum || "1"; // デフォルトを1に
                 profileNumber.value = data.studentNum || "";
                 
-                // 画面上の名前もニックネームに変更
                 if (data.nickname) {
                     document.getElementById('account-name').innerText = data.nickname;
+                }
+                // ✨新規追加：データがあれば「〇年 〇組 〇番」と表示する
+                if (data.grade && data.classNum && data.studentNum) {
+                    document.getElementById('account-profile-info').innerText = `${data.grade}年 ${data.classNum}組 ${data.studentNum}番`;
                 }
             }
         } catch (error) {
@@ -216,13 +212,15 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         try {
-            // "users" コレクションの、自分のUIDの場所にデータを上書き保存
             await setDoc(doc(db, "users", uid), profileData, { merge: true });
             alert("プロフィールを保存しました！");
             
-            // アカウント名の表示を更新
             if (profileData.nickname) {
                 document.getElementById('account-name').innerText = profileData.nickname;
+            }
+            // ✨新規追加：保存成功直後に画面の表示も更新する
+            if (profileData.grade && profileData.classNum && profileData.studentNum) {
+                document.getElementById('account-profile-info').innerText = `${profileData.grade}年 ${profileData.classNum}組 ${profileData.studentNum}番`;
             }
         } catch (error) {
             console.error("プロフィール保存エラー:", error);
