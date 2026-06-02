@@ -43,7 +43,6 @@ const scheduleData = {
         }
     },
     "2": {
-        // ✨ 提供された2年6組の画像データを完全反映しました！
         "6": {
             1: ["古典探究 📖", "論理表現II 🗣️", "数学BC 📐", "歴史総合 🌍", "化学 🧪", "情報I 💻", "数学II 📐"],
             2: ["EC II 🗣️", "地理総合 🌍", "物理 ⚡", "保健 🏃‍♂️", "探究 🔍", "探究 🔍"],
@@ -92,6 +91,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const prevDayBtn = document.getElementById('prev-day-btn');
     const nextDayBtn = document.getElementById('next-day-btn');
 
+    // 右上アカウント表示用の新規要素
+    const headerUserContainer = document.getElementById('header-user-container');
+    const headerUserBtn = document.getElementById('header-user-btn');
+    const userPopup = document.getElementById('user-popup');
+    const popupEmail = document.getElementById('popup-email');
+    const popupInfo = document.getElementById('popup-info');
+
     // アカウント画面の設定フォーム
     const profileNickname = document.getElementById('profile-nickname');
     const profileGrade = document.getElementById('profile-grade');
@@ -106,14 +112,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const setupNumber = document.getElementById('setup-number');
     const setupSaveBtn = document.getElementById('setup-save-btn');
 
+    // --- 右上アカウントボタンのクリックでポップアップを切り替え ---
+    headerUserBtn.addEventListener('click', (e) => {
+        e.stopPropagation(); // ヘッダー等へのクリック伝播を防ぐ
+        userPopup.classList.toggle('active');
+    });
+
+    // ポップアップ以外の場所をクリックしたらポップアップを閉じる
+    document.addEventListener('click', () => {
+        userPopup.classList.remove('active');
+    });
+
     // --- 曜日切り替えボタンのクリックイベント ---
     prevDayBtn.addEventListener('click', () => {
-        displayDay = (displayDay + 6) % 7; // 前の曜日に戻す（マイナス値を防ぐため+6して%7）
+        displayDay = (displayDay + 6) % 7; 
         renderSchedule(currentGrade, currentClass, displayDay);
     });
 
     nextDayBtn.addEventListener('click', () => {
-        displayDay = (displayDay + 1) % 7; // 次の曜日へ進める
+        displayDay = (displayDay + 1) % 7; 
         renderSchedule(currentGrade, currentClass, displayDay);
     });
 
@@ -158,7 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
         setupScreen.style.display = 'none';
         mainContent.style.display = 'none';
         bottomNav.style.display = 'none';
-        headerTitle.style.display = 'none';
+        headerUserContainer.style.display = 'none'; // 右上アカウントボタンを隠す
         
         if (unsubscribeTodos) unsubscribeTodos();
     }
@@ -168,7 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
         setupScreen.style.display = 'flex';
         mainContent.style.display = 'none';
         bottomNav.style.display = 'none';
-        headerTitle.style.display = 'none';
+        headerUserContainer.style.display = 'none'; // 右上アカウントボタンを隠す
     }
 
     function showMainApp(user, data) {
@@ -176,8 +193,10 @@ document.addEventListener('DOMContentLoaded', () => {
         setupScreen.style.display = 'none';
         mainContent.style.display = 'block';
         bottomNav.style.display = 'flex';
-        headerTitle.style.display = 'block';
+        headerUserContainer.style.display = 'block'; // 右上アカウントボタンを表示
 
+        // 右上ポップアップとアカウントタブに情報をセット
+        popupEmail.innerText = user.email || "アカウント情報なし";
         accountStatus.innerText = `${user.email} でログインしています`;
         
         profileNickname.value = data.nickname || "";
@@ -193,15 +212,19 @@ document.addEventListener('DOMContentLoaded', () => {
         currentClass = data.classNum || "1";
 
         if (data.grade && data.classNum && data.studentNum) {
-            document.getElementById('account-profile-info').innerText = `${data.grade}年 ${data.classNum}組 ${data.studentNum}番`;
+            const classInfoText = `${data.grade}年 ${data.classNum}組 ${data.studentNum}番`;
+            document.getElementById('account-profile-info').innerText = classInfoText;
+            popupInfo.innerText = classInfoText; // ポップアップ側にも反映
             checkDeveloperBadge(data.grade, data.classNum, data.studentNum);
+        } else {
+            popupInfo.innerText = "クラス情報未登録";
         }
 
         loadUserTodos(user.uid);
         
-        // ⏰【今回の目玉機能】17時以降なら自動的に翌日の曜日をターゲットにする
+        // 17時以降なら自動的に翌日の曜日をターゲットにする
         let now = new Date();
-        let currentDay = now.getDay(); // 0:日, 1:月, ... 6:土
+        let currentDay = now.getDay(); 
         if (now.getHours() >= 17) {
             currentDay = (currentDay + 1) % 7; 
         }
@@ -275,10 +298,11 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             if (profileData.grade && profileData.classNum && profileData.studentNum) {
-                document.getElementById('account-profile-info').innerText = `${profileData.grade}年 ${profileData.classNum}組 ${profileData.studentNum}番`;
+                const classInfoText = `${profileData.grade}年 ${profileData.classNum}組 ${profileData.studentNum}番`;
+                document.getElementById('account-profile-info').innerText = classInfoText;
+                popupInfo.innerText = classInfoText; // 保存時にもポップアップを更新
                 checkDeveloperBadge(profileData.grade, profileData.classNum, profileData.studentNum);
                 
-                // 設定を保存したら、最新のクラス情報で時間割を再表示
                 renderSchedule(currentGrade, currentClass, displayDay);
             }
         } catch (error) {
@@ -360,17 +384,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- 📅 時間割を画面に動的生成する関数（曜日対応版） ---
+    // --- 📅 時間割を画面に動的生成する関数 ---
     function renderSchedule(grade, classNum, day) {
         const scheduleList = document.getElementById('schedule-list');
         const dayLabel = document.getElementById('current-day-label');
         
-        // 曜日テキストラベルの書き換え
         dayLabel.innerText = dayLabels[day];
-        
-        scheduleList.innerHTML = ""; // 画面を一度リセット
+        scheduleList.innerHTML = ""; 
 
-        // 土曜日（6）または 日曜日（0）だった場合の特別なお休み画面
         if (day === 0 || day === 6) {
             scheduleList.innerHTML = `
                 <div style="text-align:center; color:#888; padding:40px 20px;">
@@ -382,11 +403,9 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // 該当するクラス・曜日のデータがあるか確認
         if (scheduleData[grade] && scheduleData[grade][classNum] && scheduleData[grade][classNum][day]) {
             const todaySubjects = scheduleData[grade][classNum][day]; 
 
-            // 登録されている配列の長さ（6コマなら6回、7コマなら7回）だけカードを生成
             todaySubjects.forEach((subject, index) => {
                 const period = index + 1; 
                 const time = timeTable[index] || "時間未定"; 

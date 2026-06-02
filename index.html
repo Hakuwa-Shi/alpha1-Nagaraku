@@ -6,7 +6,7 @@
     <title>Nagaraku</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        /* 新規追加：強制ログイン・初期設定画面用のスタイル */
+        /* 強制ログイン・初期設定画面用のスタイル */
         .overlay-screen {
             position: absolute;
             top: 0;
@@ -95,12 +95,21 @@
                     <label>出席番号</label>
                     <input type="number" id="setup-number" placeholder="例: 15" min="1">
                 </div>
-                <button id="setup-save-btn" style="background-color: #34C759; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-size: 1.1rem; width: 100%; cursor: pointer; font-weight: bold; margin-top: 10px;">はじめる</button>
+                <button id="setup-save-btn" style="background-color: #6bb374; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-size: 1.1rem; width: 100%; cursor: pointer; font-weight: bold; margin-top: 10px;">はじめる</button>
             </div>
         </div>
     </div>
 
-    <header id="header-title">今日の時間割</header>
+    <header>
+        <span id="header-title">今日の時間割</span>
+        <div class="header-user-container" id="header-user-container" style="display: none;">
+            <button id="header-user-btn" class="header-user-btn">👤</button>
+            <div id="user-popup" class="user-popup">
+                <div id="popup-email" class="popup-email">loading...</div>
+                <div id="popup-info" class="popup-info"></div>
+            </div>
+        </div>
+    </header>
 
     <main id="main-content" style="display: none;"> 
         <div id="tab-schedule" class="tab-content active">
