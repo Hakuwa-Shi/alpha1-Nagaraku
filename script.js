@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import { getFirestore, collection, addDoc, onSnapshot, query, where, doc, deleteDoc, orderBy, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, onSnapshot, query, where, doc, deleteDoc, orderBy, setDoc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyDRJK_M5KuILJ3kkOraiEOQNKoJ1fqe7_c", 
@@ -18,7 +18,6 @@ const db = getFirestore(app);
 
 let unsubscribeTodos = null;
 
-// ご提示いただいたリアルな時間割のチャイム時刻テーブル
 const timeTable = [
     "08:30 - 09:20", // 1限
     "09:30 - 10:20", // 2限
@@ -31,7 +30,6 @@ const timeTable = [
 
 const dayLabels = ["日曜日", "月曜日", "火曜日", "水曜日", "木曜日", "金曜日", "土曜日"];
 
-// 📸 アップロード画像から2年6組の実際の時間割データを完全構築！
 const scheduleData = {
     "1": {
         "1": {
@@ -86,7 +84,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const nextDayBtn = document.getElementById('next-day-btn');
 
     const headerUserContainer = document.getElementById('header-user-container');
-    const headerUserBtn = document.getElementById('header-user-btn');
     const userPopup = document.getElementById('user-popup');
     const popupEmail = document.getElementById('popup-email');
     const popupInfo = document.getElementById('popup-info');
@@ -106,13 +103,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const bugText = document.getElementById('bug-text');
     const sendBugBtn = document.getElementById('send-bug-btn');
 
-    headerUserBtn.addEventListener('click', (e) => {
-        e.stopPropagation(); 
-        userPopup.classList.toggle('active');
-    });
-
     document.addEventListener('click', () => {
-        userPopup.classList.remove('active');
+        if(userPopup) userPopup.classList.remove('active');
     });
 
     prevDayBtn.addEventListener('click', () => {
@@ -163,7 +155,6 @@ document.addEventListener('DOMContentLoaded', () => {
         mainContent.style.display = 'none';
         bottomNav.style.display = 'none';
         headerUserContainer.style.display = 'none'; 
-        
         if (unsubscribeTodos) unsubscribeTodos();
     }
 
@@ -197,15 +188,13 @@ document.addEventListener('DOMContentLoaded', () => {
         currentGrade = data.grade || "1";
         currentClass = data.classNum || "1";
 
-        // 🌟 ヘッダーの右側に「ニックネーム（太字）」と「クラス情報」を表示するようプログラム修正
+        // 🌟 スマホで見切れないようヘッダー情報をすっきり1行テキストに成形
         if (data.grade && data.classNum && data.studentNum) {
             const classInfoText = `${data.grade}年${data.classNum}組 ${data.studentNum}番`;
-            const nicknameText = data.nickname ? `${data.nickname}さん` : "ユーザーさん";
+            const nameDisplay = data.nickname ? `${data.nickname} さん` : "ユーザー さん";
             
             document.getElementById('account-profile-info').innerText = classInfoText;
-            
-            // 安全にHTML構造としてヘッダー右側へ流し込み
-            popupInfo.innerHTML = `<span style="font-weight: 800; display: block;">${nicknameText}</span><span style="font-weight: 800; font-size: 0.75rem; opacity: 0.9; display: block;">${classInfoText}</span>`; 
+            popupInfo.innerText = `${nameDisplay} ［${classInfoText}］`; 
             
             checkDeveloperBadge(data.grade, data.classNum, data.studentNum);
         } else {
@@ -287,12 +276,10 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (profileData.grade && profileData.classNum && profileData.studentNum) {
                 const classInfoText = `${profileData.grade}年${profileData.classNum}組 ${profileData.studentNum}番`;
-                const nicknameText = profileData.nickname ? `${profileData.nickname}さん` : "ユーザーさん";
+                const nameDisplay = profileData.nickname ? `${profileData.nickname} さん` : "ユーザー さん";
                 
                 document.getElementById('account-profile-info').innerText = classInfoText;
-                
-                // 保存時もヘッダーを上書き
-                popupInfo.innerHTML = `<span style="font-weight: 800; display: block;">${nicknameText}</span><span style="font-weight: 800; font-size: 0.75rem; opacity: 0.9; display: block;">${classInfoText}</span>`; 
+                popupInfo.innerText = `${nameDisplay} ［${classInfoText}］`; 
                 
                 checkDeveloperBadge(profileData.grade, profileData.classNum, profileData.studentNum);
                 renderSchedule(currentGrade, currentClass, displayDay);
@@ -311,6 +298,7 @@ document.addEventListener('DOMContentLoaded', () => {
             await addDoc(collection(db, "todos"), {
                 uid: auth.currentUser.uid,
                 text: taskText,
+                checked: false, // 🌟 初期状態は未チェック
                 createdAt: new Date()
             });
             todoInput.value = ""; 
@@ -319,6 +307,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // 🌟 チェックボックス対応＆自動消滅しないタスクローダー
     function loadUserTodos(uid) {
         if (unsubscribeTodos) unsubscribeTodos();
 
@@ -336,29 +325,48 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            const cardDiv = document.createElement('div');
-            cardDiv.className = 'card';
+            // カードのガワとなる大枠を作成
+            const containerDiv = document.createElement('div');
+            containerDiv.className = 'todo-container-card';
 
             querySnapshot.forEach((docSnap) => {
                 const todoData = docSnap.data();
                 const todoId = docSnap.id; 
+                const isChecked = todoData.checked ? "checked" : "";
 
                 const todoItem = document.createElement('div');
                 todoItem.className = 'todo-item';
                 todoItem.innerHTML = `
-                    <span>${todoData.text}</span>
-                    <button class="delete-btn" data-id="${todoId}">完了</button>
+                    <div class="todo-left">
+                        <input type="checkbox" class="todo-checkbox" data-id="${todoId}" ${isChecked}>
+                        <span class="todo-text">${todoData.text}</span>
+                    </div>
+                    <button class="todo-delete-btn" data-id="${todoId}">削除</button>
                 `;
 
-                todoItem.querySelector('.delete-btn').addEventListener('click', async (e) => {
+                // チェックボックスのON/OFF状態をFirestoreへ保存する処理
+                todoItem.querySelector('.todo-checkbox').addEventListener('change', async (e) => {
                     const id = e.target.getAttribute('data-id');
-                    await deleteDoc(doc(db, "todos", id));
+                    const status = e.target.checked;
+                    try {
+                        await updateDoc(doc(db, "todos", id), { checked: status });
+                    } catch (error) {
+                        console.error("タスク更新エラー:", error);
+                    }
                 });
 
-                cardDiv.appendChild(todoItem);
+                // 削除ボタンが明示的に押されたときだけデータを消去する処理
+                todoItem.querySelector('.todo-delete-btn').addEventListener('click', async (e) => {
+                    const id = e.target.getAttribute('data-id');
+                    if (confirm("このタスクを削除しますか？")) {
+                        await deleteDoc(doc(db, "todos", id));
+                    }
+                });
+
+                containerDiv.appendChild(todoItem);
             });
 
-            todoList.appendChild(cardDiv);
+            todoList.appendChild(containerDiv);
         }, (error) => {
             console.error("Firestore読み込みエラー:", error);
         });
@@ -367,12 +375,13 @@ document.addEventListener('DOMContentLoaded', () => {
     function checkDeveloperBadge(grade, classNum, studentNum) {
         const devBadge = document.getElementById('developer-badge');
         if (grade === "2" && classNum === "6" && studentNum === "16") {
-            devBadge.style.display = "inline-flex";
+            if(devBadge) devBadge.style.display = "inline-flex";
         } else {
-            devBadge.style.display = "none";
+            if(devBadge) devBadge.style.display = "none";
         }
     }
 
+    // 🌟 時間割表示のレイアウト大改修（カッコなし＆メリハリ強調）
     function renderSchedule(grade, classNum, day) {
         const scheduleList = document.getElementById('schedule-list');
         const dayLabel = document.getElementById('current-day-label');
@@ -403,10 +412,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const cardDiv = document.createElement('div');
                 cardDiv.className = 'card';
-                // 🌟 時間表示から () を完全に取り除くよう書き換え
+                
+                // バッジ構造を導入し、カッコを排除して綺麗に整列
                 cardDiv.innerHTML = `
-                    <h4 class="schedule-time-text">${period}限 ${time}</h4>
-                    <h3 class="schedule-subject-text">${subject}</h3>
+                    <div class="schedule-row">
+                        <div class="schedule-left-block">
+                            <span class="period-badge">${period}限</span>
+                            <h3 class="schedule-subject-text">${subject}</h3>
+                        </div>
+                        <span class="schedule-time-text">${time}</span>
+                    </div>
                 `;
                 scheduleList.appendChild(cardDiv);
             });

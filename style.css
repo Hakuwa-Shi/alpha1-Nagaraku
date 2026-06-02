@@ -31,27 +31,34 @@ body {
     box-shadow: 0 0 20px rgba(0,0,0,0.1);
 }
 
-/* ヘッダーのレイアウト */
+/* ヘッザースタイル：スマホで見切れない上下2段配置 */
 header {
     background: linear-gradient(135deg, #48cae4, #00b4d8);
     color: white;
-    padding: 10px 16px; 
+    padding: 12px 16px; 
     box-shadow: 0 2px 10px rgba(0, 180, 216, 0.2);
     z-index: 10;
 }
 .header-content-wrapper {
     display: flex;
-    align-items: center;
-    justify-content: space-between; 
+    flex-direction: column; /* 縦並びにしてスマホの横幅不足を解決 */
+    align-items: flex-start;
+    gap: 4px;
     width: 100%;
     box-sizing: border-box;
+}
+.header-main-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
 }
 .header-logo-title {
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 1.1rem;
-    font-weight: bold;
+    font-size: 1.2rem;
+    font-weight: 800;
 }
 .header-logo-badge {
     background: white; 
@@ -64,52 +71,45 @@ header {
     border-radius: 6px; 
     font-weight: 900; 
     font-size: 0.9rem; 
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-/* 🌟 ヘッダー右側：メールを消してクラス情報を太字で右寄せ */
+/* ユーザー情報表示エリア（2段目左側へ配置して確実に見せる） */
 .header-user-container {
-    text-align: right;
-    max-width: 60%;
+    width: 100%;
+    text-align: left;
 }
-/* script.jsが自動挿入するメールアドレス（aタグ）を完全に非表示にする */
-.header-user-container a, 
-#popup-email {
-    display: none !important;
+.header-user-container a, #popup-email {
+    display: none !important; /* メールは非表示 */
 }
-/* クラス情報（popup-info）とコンテナ全体の文字を「太字」にする */
-#header-user-container,
-.popup-info,
 #popup-info {
-    font-size: 0.85rem !important;
-    font-weight: 800 !important; /* 確実に極太にする */
-    color: white !important;
+    font-size: 0.8rem !important;
+    color: rgba(255, 255, 255, 0.95) !important;
     display: block !important;
 }
 
-/* メインコンテンツエリア（ボトムナビのパディング調整） */
+/* メインコンテンツエリア */
 main {
     flex-grow: 1;
     overflow-y: auto;
-    padding: 10px 14px; /* 隙間をさらに詰めてスクロールを完全に防止 */
+    padding: 8px 12px;
     padding-bottom: 75px; 
 }
 
-/* 🌟 日付セレクターと時間割リストを極限まで近づける */
+/* 日付セレクター */
 .day-selector {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 15px;
-    margin-bottom: 6px; /* 隙間をギュッと縮小 */
+    gap: 20px;
+    margin-bottom: 6px;
 }
 .day-btn {
     background: none;
     border: none;
-    font-size: 1rem;
+    font-size: 1.1rem;
     cursor: pointer;
     color: var(--primary-color);
-    padding: 2px 6px;
+    padding: 4px 8px;
 }
 #current-day-label {
     font-size: 1rem;
@@ -117,7 +117,6 @@ main {
     color: #333;
 }
 
-/* タブの切り替え制御 */
 .tab-content {
     display: none;
 }
@@ -125,28 +124,51 @@ main {
     display: block;
 }
 
-/* 🌟 時間割カードの究極のコンパクト化（スクロールさせない） */
+/* 時間割カードの構造化 */
 .card, #schedule-list > div {
     background-color: var(--card-bg);
-    border-radius: 10px;
-    padding: 8px 14px !important; /* 内側の上下余白を狭くして高さを極限まで縮小 */
-    margin-bottom: 6px !important; /* カード同士の隙間を狭く */
-    box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+    border-radius: 12px;
+    padding: 10px 14px !important;
+    margin-bottom: 6px !important;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.03);
     box-sizing: border-box;
 }
 
-/* 🌟 ()を無くした時間の文字サイズ指定とスタイルの微調整 */
-#schedule-list h4, .schedule-time-text {
+/* 時間割のメリハリデザイン設定 */
+.schedule-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+.schedule-left-block {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+/* 何限目かを目立たせるバッジ */
+.period-badge {
+    background-color: #e0f7fa;
+    color: #00b4d8;
+    font-size: 0.8rem;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 6px;
+    white-space: nowrap;
+}
+/* 科目名を特大かつ太字で最注目に */
+.schedule-subject-text {
+    font-size: 1.2rem !important;
+    font-weight: 900 !important;
+    color: #102a43 !important;
+    margin: 0 !important;
+}
+/* ()なしの時刻表示 */
+.schedule-time-text {
     font-size: 0.75rem !important;
     color: #627d98 !important;
-    margin: 0 0 1px 0 !important;
     font-weight: 600;
-}
-#schedule-list h3, .schedule-subject-text {
-    font-size: 1.05rem !important; /* 教科名をパッと見やすく */
-    margin: 0 !important;
-    font-weight: bold;
-    color: #222;
+    white-space: nowrap;
 }
 
 .section-title {
@@ -156,30 +178,69 @@ main {
     margin-bottom: 8px;
 }
 
-/* Todoリスト */
+/* 🌟 チェックボックス制のTodoリストスタイル */
+.todo-container-card {
+    background-color: var(--card-bg);
+    border-radius: 12px;
+    padding: 6px 0;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+}
 .todo-item {
     display: flex;
     align-items: center;
-    margin-bottom: 8px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid #eee;
+    justify-content: space-between;
+    padding: 10px 14px;
+    border-bottom: 1px solid #f0f4f8;
+    gap: 10px;
 }
 .todo-item:last-child {
     border-bottom: none;
-    margin-bottom: 0;
-    padding-bottom: 0;
 }
-.todo-item input[type="checkbox"] {
-    margin-right: 12px;
-    transform: scale(1.2);
+.todo-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-grow: 1;
+}
+/* カスタムチェックボックス */
+.todo-checkbox {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: var(--primary-color);
+}
+/* チェックが入ったタスクテキストの打ち消し線効果 */
+.todo-checkbox:checked + .todo-text {
+    color: #a0aec0;
+    text-decoration: line-through;
+}
+.todo-text {
+    font-size: 0.95rem;
+    color: #334e68;
+    font-weight: 600;
+    word-break: break-all;
+}
+/* 明示的な削除ボタン */
+.todo-delete-btn {
+    background-color: #fff1f1;
+    color: var(--danger-color);
+    border: none;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    cursor: pointer;
+    white-space: nowrap;
+}
+.todo-delete-btn:hover {
+    background-color: #ffe3e3;
 }
 
-/* アカウントプロフィールカード */
+/* アカウント設定 */
 .profile-card {
     text-align: center;
     padding: 20px 15px;
 }
-/* 🌟 設定のアカウント名をしっかりと太字にする */
 #account-name {
     font-weight: 800 !important; 
     font-size: 1.2rem;
@@ -219,7 +280,6 @@ main {
     flex: 1;
     gap: 2px;
     padding: 0;
-    transition: color 0.2s ease;
 }
 .nav-btn.active {
     color: var(--primary-color);
@@ -229,10 +289,9 @@ main {
     width: 22px !important;
     height: 22px !important;
     fill: currentColor;
-    transition: transform 0.2s ease;
 }
 
-/* Todo入力フォーム */
+/* Todoフォーム */
 .todo-form-card {
     display: flex;
     gap: 8px;
@@ -254,16 +313,8 @@ main {
     cursor: pointer;
     font-size: 0.9rem;
 }
-.delete-btn {
-    background: none;
-    border: none;
-    color: var(--danger-color);
-    font-size: 0.85rem;
-    cursor: pointer;
-    margin-left: auto;
-}
 
-/* プロフィール設定フォーム */
+/* 設定フォーム群 */
 .form-group {
     margin-bottom: 10px;
 }
@@ -291,10 +342,7 @@ main {
     width: 100%;
     cursor: pointer;
     font-weight: bold;
-    margin-top: 5px;
 }
-
-/* 開発者バッジ */
 .dev-badge {
     background: linear-gradient(135deg, #FFD700, #FFA500); 
     color: #fff;
@@ -303,10 +351,4 @@ main {
     border-radius: 10px;
     margin-left: 6px;
     font-weight: bold;
-}
-
-/* アニメーション */
-@keyframes pulse {
-    0% { transform: scale(1); opacity: 0.6; }
-    100% { transform: scale(1.1); opacity: 1; }
 }
