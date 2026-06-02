@@ -18,7 +18,7 @@ const db = getFirestore(app);
 
 let unsubscribeTodos = null;
 
-// 📅 --- 統合された時間割データ ---
+// 📅 --- 時間割データ（絵文字の削除） ---
 const timeTable = [
     "08:30 - 09:20", // 1限
     "09:30 - 10:20", // 2限
@@ -31,34 +31,31 @@ const timeTable = [
 
 const dayLabels = ["日曜日", "月曜日", "火曜日", "水曜日", "木曜日", "金曜日", "土曜日"];
 
-// 各曜日（1=月, 2=火, 3=水, 4=木, 5=金）の時間割
 const scheduleData = {
     "1": {
         "1": {
-            1: ["現代文 📖", "数学I 📐", "英語 🗣️", "物理基礎 ⚡", "体育 🏃‍♂️", "歴史総合 🌍", "探究 🔍"],
-            2: ["数学I 📐", "現代文 📖", "歴史総合 🌍", "英語 🗣️", "情報 💻", "体育 🏃‍♂️"],
-            3: ["英語 🗣️", "数学I 📐", "現代文 📖", "物理基礎 ⚡", "歴史総合 🌍", "情報 💻"],
-            4: ["歴史総合 🌍", "英語 🗣️", "数学I 📐", "現代文 📖", "体育 🏃‍♂️", "物理基礎 ⚡"],
-            5: ["物理基礎 ⚡", "歴史総合 🌍", "英語 🗣️", "数学I 📐", "現代文 📖", "LHR 🏫"]
+            1: ["現代文", "数学I", "英語", "物理基礎", "体育", "歴史総合", "探究"],
+            2: ["数学I", "現代文", "歴史総合", "英語", "情報", "体育"],
+            3: ["英語", "数学I", "現代文", "物理基礎", "歴史総合", "情報"],
+            4: ["歴史総合", "英語", "数学I", "現代文", "体育", "物理基礎"],
+            5: ["物理基礎", "歴史総合", "英語", "数学I", "現代文", "LHR"]
         }
     },
     "2": {
         "6": {
-            1: ["古典探究 📖", "論理表現II 🗣️", "数学BC 📐", "歴史総合 🌍", "化学 🧪", "情報I 💻", "数学II 📐"],
-            2: ["EC II 🗣️", "地理総合 🌍", "物理 ⚡", "保健 🏃‍♂️", "探究 🔍", "探究 🔍"],
-            3: ["化学 🧪", "体育 🏃‍♂️", "論理表現II 🗣️", "情報I 💻", "数学BC 📐", "古典探究 📖"],
-            4: ["EC II 🗣️", "数学II 📐", "地理総合 🌍", "論理国語 📖", "物理 ⚡", "歴史総合 🌍"],
-            5: ["論理国語 📖", "体育 🏃‍♂️", "数学BC 📐", "数学II 📐", "化学 🧪", "EC II 🗣️", "LHR 🏫"]
+            1: ["古典探究", "論理表現II", "数学BC", "歴史総合", "化学", "情報I", "数学II"],
+            2: ["EC II", "地理総合", "物理", "保健", "探究", "探究"],
+            3: ["化学", "体育", "論理表現II", "情報I", "数学BC", "古典探究"],
+            4: ["EC II", "数学II", "地理総合", "論理国語", "物理", "歴史総合"],
+            5: ["論理国語", "体育", "数学BC", "数学II", "化学", "EC II", "LHR"]
         }
     }
 };
 
-// アプリ全体で共有する状態管理用の変数
 let currentGrade = "1";
 let currentClass = "1";
-let displayDay = 1; // 現在画面に表示している曜日(0~6)
+let displayDay = 1; 
 
-// タブ切り替え関数
 window.switchTab = function(tabId, title, btnElement) {
     const contents = document.querySelectorAll('.tab-content');
     contents.forEach(content => content.classList.remove('active'));
@@ -71,14 +68,11 @@ window.switchTab = function(tabId, title, btnElement) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    // 画面要素の取得
     const loginScreen = document.getElementById('login-screen');
     const setupScreen = document.getElementById('setup-screen');
     const mainContent = document.getElementById('main-content');
     const bottomNav = document.getElementById('bottom-nav');
-    const headerTitle = document.getElementById('header-title');
 
-    // 各種ボタンと要素
     const mainLoginBtn = document.getElementById('main-login-btn');
     const logoutBtn = document.getElementById('logout-btn');
     const accountName = document.getElementById('account-name');
@@ -87,43 +81,36 @@ document.addEventListener('DOMContentLoaded', () => {
     const todoAddBtn = document.getElementById('todo-add-btn');
     const todoList = document.getElementById('todo-list');
     
-    // 曜日切り替えボタン
     const prevDayBtn = document.getElementById('prev-day-btn');
     const nextDayBtn = document.getElementById('next-day-btn');
 
-    // 右上アカウント表示用の新規要素
     const headerUserContainer = document.getElementById('header-user-container');
     const headerUserBtn = document.getElementById('header-user-btn');
     const userPopup = document.getElementById('user-popup');
     const popupEmail = document.getElementById('popup-email');
     const popupInfo = document.getElementById('popup-info');
 
-    // アカウント画面の設定フォーム
     const profileNickname = document.getElementById('profile-nickname');
     const profileGrade = document.getElementById('profile-grade');
     const profileClass = document.getElementById('profile-class');
     const profileNumber = document.getElementById('profile-number');
     const profileSaveBtn = document.getElementById('profile-save-btn');
 
-    // 初期設定画面のフォーム
     const setupNickname = document.getElementById('setup-nickname');
     const setupGrade = document.getElementById('setup-grade');
     const setupClass = document.getElementById('setup-class');
     const setupNumber = document.getElementById('setup-number');
     const setupSaveBtn = document.getElementById('setup-save-btn');
 
-    // --- 右上アカウントボタンのクリックでポップアップを切り替え ---
     headerUserBtn.addEventListener('click', (e) => {
-        e.stopPropagation(); // ヘッダー等へのクリック伝播を防ぐ
+        e.stopPropagation(); 
         userPopup.classList.toggle('active');
     });
 
-    // ポップアップ以外の場所をクリックしたらポップアップを閉じる
     document.addEventListener('click', () => {
         userPopup.classList.remove('active');
     });
 
-    // --- 曜日切り替えボタンのクリックイベント ---
     prevDayBtn.addEventListener('click', () => {
         displayDay = (displayDay + 6) % 7; 
         renderSchedule(currentGrade, currentClass, displayDay);
@@ -134,7 +121,6 @@ document.addEventListener('DOMContentLoaded', () => {
         renderSchedule(currentGrade, currentClass, displayDay);
     });
 
-    // --- ログイン処理 ---
     mainLoginBtn.addEventListener('click', () => {
         signInWithPopup(auth, provider).catch((error) => {
             console.error("ログインエラー:", error);
@@ -142,12 +128,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // --- ログアウト処理 ---
     logoutBtn.addEventListener('click', () => {
         signOut(auth);
     });
 
-    // --- ログイン状態の監視 ---
     onAuthStateChanged(auth, async (user) => {
         if (user) {
             const uid = user.uid;
@@ -169,13 +153,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- 画面切り替え用の関数 ---
     function showLoginScreen() {
         loginScreen.style.display = 'flex';
         setupScreen.style.display = 'none';
         mainContent.style.display = 'none';
         bottomNav.style.display = 'none';
-        headerUserContainer.style.display = 'none'; // 右上アカウントボタンを隠す
+        headerUserContainer.style.display = 'none'; 
         
         if (unsubscribeTodos) unsubscribeTodos();
     }
@@ -185,7 +168,7 @@ document.addEventListener('DOMContentLoaded', () => {
         setupScreen.style.display = 'flex';
         mainContent.style.display = 'none';
         bottomNav.style.display = 'none';
-        headerUserContainer.style.display = 'none'; // 右上アカウントボタンを隠す
+        headerUserContainer.style.display = 'none'; 
     }
 
     function showMainApp(user, data) {
@@ -193,9 +176,8 @@ document.addEventListener('DOMContentLoaded', () => {
         setupScreen.style.display = 'none';
         mainContent.style.display = 'block';
         bottomNav.style.display = 'flex';
-        headerUserContainer.style.display = 'block'; // 右上アカウントボタンを表示
+        headerUserContainer.style.display = 'block'; 
 
-        // 右上ポップアップとアカウントタブに情報をセット
         popupEmail.innerText = user.email || "アカウント情報なし";
         accountStatus.innerText = `${user.email} でログインしています`;
         
@@ -214,7 +196,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (data.grade && data.classNum && data.studentNum) {
             const classInfoText = `${data.grade}年 ${data.classNum}組 ${data.studentNum}番`;
             document.getElementById('account-profile-info').innerText = classInfoText;
-            popupInfo.innerText = classInfoText; // ポップアップ側にも反映
+            popupInfo.innerText = classInfoText; 
             checkDeveloperBadge(data.grade, data.classNum, data.studentNum);
         } else {
             popupInfo.innerText = "クラス情報未登録";
@@ -222,7 +204,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         loadUserTodos(user.uid);
         
-        // 17時以降なら自動的に翌日の曜日をターゲットにする
         let now = new Date();
         let currentDay = now.getDay(); 
         if (now.getHours() >= 17) {
@@ -230,11 +211,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         displayDay = currentDay;
 
-        // 初期表示の時間割を描画
         renderSchedule(currentGrade, currentClass, displayDay);
     }
 
-    // --- 初期設定画面の「はじめる」ボタン処理 ---
     setupSaveBtn.addEventListener('click', async () => {
         if (!auth.currentUser) return;
         
@@ -268,7 +247,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- アカウント画面の「保存する」ボタン処理 ---
     profileSaveBtn.addEventListener('click', async () => {
         if (!auth.currentUser) return;
         
@@ -300,7 +278,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (profileData.grade && profileData.classNum && profileData.studentNum) {
                 const classInfoText = `${profileData.grade}年 ${profileData.classNum}組 ${profileData.studentNum}番`;
                 document.getElementById('account-profile-info').innerText = classInfoText;
-                popupInfo.innerText = classInfoText; // 保存時にもポップアップを更新
+                popupInfo.innerText = classInfoText; 
                 checkDeveloperBadge(profileData.grade, profileData.classNum, profileData.studentNum);
                 
                 renderSchedule(currentGrade, currentClass, displayDay);
@@ -311,7 +289,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- Todoの追加処理 ---
     todoAddBtn.addEventListener('click', async () => {
         const taskText = todoInput.value.trim();
         if (!taskText || !auth.currentUser) return; 
@@ -328,7 +305,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- Todoの読み込み関数 ---
     function loadUserTodos(uid) {
         if (unsubscribeTodos) unsubscribeTodos();
 
@@ -342,7 +318,7 @@ document.addEventListener('DOMContentLoaded', () => {
             todoList.innerHTML = ""; 
 
             if (querySnapshot.empty) {
-                todoList.innerHTML = '<p style="text-align:center; color:#888; padding:20px;">タスクはすべて完了です！✨</p>';
+                todoList.innerHTML = '<p style="text-align:center; color:#888; padding:20px;">タスクはすべて完了です！</p>';
                 return;
             }
 
@@ -374,7 +350,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- 開発者バッジの判定関数 ---
     function checkDeveloperBadge(grade, classNum, studentNum) {
         const devBadge = document.getElementById('developer-badge');
         if (grade === "2" && classNum === "6" && studentNum === "16") {
@@ -384,7 +359,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- 📅 時間割を画面に動的生成する関数 ---
+    // --- 📅 時間割生成関数（休日等のテキスト表現変更） ---
     function renderSchedule(grade, classNum, day) {
         const scheduleList = document.getElementById('schedule-list');
         const dayLabel = document.getElementById('current-day-label');
@@ -395,9 +370,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (day === 0 || day === 6) {
             scheduleList.innerHTML = `
                 <div style="text-align:center; color:#888; padding:40px 20px;">
-                    <p style="font-size: 3rem; margin-bottom: 10px;">🏝️</p>
-                    <p style="font-weight: bold; color: var(--text-color); font-size: 1.2rem;">学校はお休みです！</p>
-                    <p style="font-size: 0.9rem; margin-top: 8px; line-height: 1.5;">次の登校日に向けてしっかり休みましょう。<br>課題やタスクの確認も忘れずに！✨</p>
+                    <p style="font-weight: bold; color: var(--text-color); font-size: 1.2rem; margin-bottom: 8px;">学校はお休みです</p>
+                    <p style="font-size: 0.9rem; line-height: 1.5;">次の登校日に向けてしっかり休みましょう。<br>課題やタスクの確認も忘れずに。</p>
                 </div>
             `;
             return;

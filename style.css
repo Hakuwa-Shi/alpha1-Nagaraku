@@ -30,7 +30,6 @@ body {
     box-shadow: 0 0 20px rgba(0,0,0,0.05);
 }
 
-/* ✨変更点：ヘッダーを横並びにし、相対配置に変更 */
 header {
     background-color: var(--primary-color);
     color: white;
@@ -43,7 +42,7 @@ header {
     position: relative;
 }
 
-/* ✨新規追加：右上のユーザーエリアとポップアップ用スタイル */
+/* 右上のユーザーエリアとポップアップ用スタイル */
 .header-user-container {
     position: relative;
 }
@@ -51,14 +50,12 @@ header {
     background-color: rgba(255, 255, 255, 0.25);
     border: none;
     color: white;
-    font-size: 0.9rem;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
+    font-size: 0.75rem; /* テキスト用にサイズ調整 */
+    letter-spacing: 0.5px;
+    padding: 6px 10px;
+    border-radius: 20px; /* 丸みのあるカプセル風 */
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    font-weight: bold;
     transition: 0.2s;
 }
 .header-user-btn:hover {
@@ -79,14 +76,13 @@ header {
     text-align: left;
 }
 .user-popup.active {
-    display: block; /* クリックで表示切り替え */
+    display: block; 
 }
-/* ポップアップの小さな矢印 */
 .user-popup::before {
     content: "";
     position: absolute;
     top: -6px;
-    right: 12px;
+    right: 20px;
     border-left: 6px solid transparent;
     border-right: 6px solid transparent;
     border-bottom: 6px solid white;
@@ -184,43 +180,26 @@ main {
     transform: scale(1.5);
 }
 
-/* Google Classroomタグ */
-.classroom-tag {
-    font-size: 0.7rem;
-    background-color: #e8f0fe;
-    color: #1a73e8;
-    padding: 3px 8px;
-    border-radius: 10px;
-    margin-left: auto;
-}
-
 /* アカウントプロフィールカード */
 .profile-card {
     text-align: center;
-    padding: 30px 15px;
+    padding: 25px 15px;
 }
-.profile-icon {
-    font-size: 3rem;
-    margin-bottom: 10px;
+/* 絵文字アイコンに代わるすっきりしたテキストアイコン */
+.profile-text-icon {
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: var(--primary-color);
+    background-color: #eef7f0;
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 12px;
+    letter-spacing: 1px;
 }
 #account-status {
     font-size: 0.9rem;
     color: #888;
-}
-
-/* ログインボタンの基本スタイル */
-#login-btn {
-    background-color: var(--primary-color);
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 8px;
-    font-size: 1rem;
-    width: 100%;
-    margin-top: 15px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: 0.2s;
 }
 
 /* ボトムナビゲーション */
@@ -232,27 +211,26 @@ main {
     background-color: white;
     display: flex;
     justify-content: space-around;
-    padding: 10px 0;
+    padding: 12px 0;
     border-top: 1px solid #ddd;
-    padding-bottom: env(safe-area-inset-bottom, 10px);
+    padding-bottom: env(safe-area-inset-bottom, 12px);
 }
 .nav-btn {
     background: none;
     border: none;
     color: #888;
-    font-size: 0.9rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
     cursor: pointer;
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 .nav-btn.active {
     color: var(--primary-color);
-    font-weight: bold;
 }
-.nav-icon {
-    font-size: 1.5rem;
-    margin-bottom: 3px;
+.nav-text-icon {
+    font-size: 0.95rem;
+    font-weight: bold;
 }
 
 /* Todo入力フォームのデザイン */
@@ -316,17 +294,15 @@ main {
     margin-top: 10px;
 }
 
-/* 開発者バッジのデザイン */
+/* 開発者バッジのデザイン（グラデーションを少しマイルドに調整） */
 .dev-badge {
-    background: linear-gradient(135deg, #FFD700, #FFA500); 
+    background: #666; 
     color: #fff;
-    text-shadow: 0 1px 1px rgba(0,0,0,0.2);
-    font-size: 0.75rem;
-    padding: 3px 8px;
-    border-radius: 12px;
-    margin-left: 10px;
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-left: 8px;
     font-weight: bold;
-    box-shadow: 0 2px 5px rgba(255, 165, 0, 0.4);
     vertical-align: middle;
 }
 
