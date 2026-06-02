@@ -197,10 +197,16 @@ document.addEventListener('DOMContentLoaded', () => {
         currentGrade = data.grade || "1";
         currentClass = data.classNum || "1";
 
+        // 🌟 ヘッダーの右側に「ニックネーム（太字）」と「クラス情報」を表示するようプログラム修正
         if (data.grade && data.classNum && data.studentNum) {
-            const classInfoText = `${data.grade}年 ${data.classNum}組 ${data.studentNum}番`;
+            const classInfoText = `${data.grade}年${data.classNum}組 ${data.studentNum}番`;
+            const nicknameText = data.nickname ? `${data.nickname}さん` : "ユーザーさん";
+            
             document.getElementById('account-profile-info').innerText = classInfoText;
-            popupInfo.innerText = classInfoText; 
+            
+            // 安全にHTML構造としてヘッダー右側へ流し込み
+            popupInfo.innerHTML = `<span style="font-weight: 800; display: block;">${nicknameText}</span><span style="font-weight: 800; font-size: 0.75rem; opacity: 0.9; display: block;">${classInfoText}</span>`; 
+            
             checkDeveloperBadge(data.grade, data.classNum, data.studentNum);
         } else {
             popupInfo.innerText = "クラス情報未登録";
@@ -280,11 +286,15 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             if (profileData.grade && profileData.classNum && profileData.studentNum) {
-                const classInfoText = `${profileData.grade}年 ${profileData.classNum}組 ${profileData.studentNum}番`;
-                document.getElementById('account-profile-info').innerText = classInfoText;
-                popupInfo.innerText = classInfoText; 
-                checkDeveloperBadge(profileData.grade, profileData.classNum, profileData.studentNum);
+                const classInfoText = `${profileData.grade}年${profileData.classNum}組 ${profileData.studentNum}番`;
+                const nicknameText = profileData.nickname ? `${profileData.nickname}さん` : "ユーザーさん";
                 
+                document.getElementById('account-profile-info').innerText = classInfoText;
+                
+                // 保存時もヘッダーを上書き
+                popupInfo.innerHTML = `<span style="font-weight: 800; display: block;">${nicknameText}</span><span style="font-weight: 800; font-size: 0.75rem; opacity: 0.9; display: block;">${classInfoText}</span>`; 
+                
+                checkDeveloperBadge(profileData.grade, profileData.classNum, profileData.studentNum);
                 renderSchedule(currentGrade, currentClass, displayDay);
             }
         } catch (error) {
@@ -393,9 +403,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const cardDiv = document.createElement('div');
                 cardDiv.className = 'card';
+                // 🌟 時間表示から () を完全に取り除くよう書き換え
                 cardDiv.innerHTML = `
-                    <div class="card-title">${period}限 (${time})</div>
-                    <div class="card-main">${subject}</div>
+                    <h4 class="schedule-time-text">${period}限 ${time}</h4>
+                    <h3 class="schedule-subject-text">${subject}</h3>
                 `;
                 scheduleList.appendChild(cardDiv);
             });
