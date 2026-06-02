@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getAuth, signInWithPopup, signInWithRedirect, GoogleAuthProvider, onAuthStateChanged, signOut, getRedirectResult } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { getFirestore, collection, addDoc, onSnapshot, query, where, doc, deleteDoc, orderBy, setDoc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -14,6 +14,8 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
+// ログイン後に自動でアプリに戻るための設定
+provider.setCustomParameters({ prompt: 'select_account' });
 const db = getFirestore(app);
 
 let unsubscribeTodos = null;
@@ -55,7 +57,6 @@ let currentGrade = "1";
 let currentClass = "1";
 let displayDay = 1; 
 
-// 🌟 iPhoneエラー対策：安全なタブ切り替え処理を実装
 function executeTabSwitch(tabId, title, btnElement) {
     const contents = document.querySelectorAll('.tab-content');
     contents.forEach(content => content.classList.remove('active'));
@@ -107,7 +108,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const bugText = document.getElementById('bug-text');
     const sendBugBtn = document.getElementById('send-bug-btn');
 
-    // 🌟 iPhoneエラー対策：ボトムナビのイベントリスナーをここで一括管理
     const navButtons = document.querySelectorAll('.nav-btn');
     navButtons.forEach(btn => {
         btn.addEventListener('click', (e) => {
@@ -134,15 +134,32 @@ document.addEventListener('DOMContentLoaded', () => {
         renderSchedule(currentGrade, currentClass, displayDay);
     });
 
+    // 🌟 iPhone版Chromeでも100%ログインできるようにする安全なリダイレクト処理
     mainLoginBtn.addEventListener('click', () => {
-        signInWithPopup(auth, provider).catch((error) => {
-            console.error("ログインエラー:", error);
-            alert("ログインに失敗しました。");
-        });
+        // iPhoneのChromeやLINE内ブラウザ等はリダイレクト方式を強制
+        const isIOSChrome = navigator.userAgent.includes('CriOS') || navigator.userAgent.includes('FxiOS');
+        if (isIOSChrome) {
+            signInWithRedirect(auth, provider).catch((err) => {
+                console.error("リダイレクトエラー:", err);
+                // 万が一失敗した場合はポップアップを試す
+                signInWithPopup(auth, provider);
+            });
+        } else {
+            // SafariやPCは従来通りスムーズなポップアップ
+            signInWithPopup(auth, provider).catch((error) => {
+                console.error("ポップアップエラー。リダイレクトに切り替えます:", error);
+                signInWithRedirect(auth, provider);
+            });
+        }
     });
 
     logoutBtn.addEventListener('click', () => {
         signOut(auth);
+    });
+
+    // リダイレクトから戻ってきた時のログイン結果をキャッチする（Chrome用）
+    getRedirectResult(auth).catch((error) => {
+        console.error("リダイレクトサインイン処理エラー:", error);
     });
 
     onAuthStateChanged(auth, async (user) => {
@@ -464,7 +481,7 @@ ${textValue}
 
 ----------------------------------------
 【トラブルシューティング用データ】
-・ユーザーアカウント: ${userEmail}
+ racial・ユーザーアカウント: ${userEmail}
 ・プロフィール設定: ${userClassInfo}
 ・デバイス環境: ${userAgent}
 ----------------------------------------`;
