@@ -18,6 +18,7 @@ const db = getFirestore(app);
 
 let unsubscribeTodos = null;
 
+// ご提示いただいたリアルな時間割のチャイム時刻テーブル
 const timeTable = [
     "08:30 - 09:20", // 1限
     "09:30 - 10:20", // 2限
@@ -30,6 +31,7 @@ const timeTable = [
 
 const dayLabels = ["日曜日", "月曜日", "火曜日", "水曜日", "木曜日", "金曜日", "土曜日"];
 
+// 📸 アップロード画像から2年6組の実際の時間割データを完全構築！
 const scheduleData = {
     "1": {
         "1": {
@@ -43,10 +45,10 @@ const scheduleData = {
     "2": {
         "6": {
             1: ["古典探究", "論理表現II", "数学BC", "歴史総合", "化学", "情報I", "数学II"],
-            2: ["EC II", "地理総合", "物理", "保健", "探究", "探究"],
-            3: ["化学", "体育", "論理表現II", "情報I", "数学BC", "古典探究"],
-            4: ["EC II", "数学II", "地理総合", "論理国語", "物理", "歴史総合"],
-            5: ["論理国語", "体育", "数学BC", "数学II", "化学", "EC II", "LHR"]
+            2: ["EC II", "地理総合", "体育", "数学II", "体育", "探究"],
+            3: ["化学", "物理", "論理表現II", "情報I", "数学BC", "古典探究"],
+            4: ["EC II", "保健", "地理総合", "論理国語", "物理", "歴史総合"],
+            5: ["論理国語", "探究", "数学BC", "化学", "化学", "EC II", "LHR"]
         }
     }
 };
@@ -101,7 +103,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const setupNumber = document.getElementById('setup-number');
     const setupSaveBtn = document.getElementById('setup-save-btn');
 
-    // 🛠️ トラブルシューティング用要素
     const bugText = document.getElementById('bug-text');
     const sendBugBtn = document.getElementById('send-bug-btn');
 
@@ -321,7 +322,7 @@ document.addEventListener('DOMContentLoaded', () => {
             todoList.innerHTML = ""; 
 
             if (querySnapshot.empty) {
-                todoList.innerHTML = '<p style="text-align:center; color:#888; padding:20px;">タスクはすべて完了です！</p>';
+                todoList.innerHTML = '<p style="text-align:center; color:#888; padding:20px;">タスクはすべて完了です！✨</p>';
                 return;
             }
 
@@ -371,13 +372,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (day === 0 || day === 6) {
             scheduleList.innerHTML = `
-                <div style="text-align:center; color:#888; padding:40px 20px;">
-                    <p style="font-weight: bold; color: #333333; font-size: 1.3rem; margin-bottom: 12px;">
+                <div style="text-align:center; color:#627d98; padding:40px 20px;">
+                    <p style="font-weight: bold; color: #102a43; font-size: 1.25rem; margin-bottom: 12px;">
                         ** 学校はお休みです **
                     </p>
-                    <p style="font-size: 0.95rem; line-height: 1.6; color: #555;">
-                        次の登校日に向けてしっかりリフレッシュしましょう。<br>
-                        週末の課題や自主学習のタスクチェックもお忘れなく！
+                    <p style="font-size: 0.95rem; line-height: 1.6;">
+                        今週もお疲れ様でした！しっかり身体を休めて、<br>次の登校日の準備をマイペースに進めましょう。
                     </p>
                 </div>
             `;
@@ -400,42 +400,37 @@ document.addEventListener('DOMContentLoaded', () => {
                 scheduleList.appendChild(cardDiv);
             });
         } else {
-            scheduleList.innerHTML = '<p style="text-align:center; color:#888; padding:20px;">このクラス・曜日の時間割はまだ登録されていません。</p>';
+            scheduleList.innerHTML = '<p style="text-align:center; color:#888; padding:20px;">このクラスの曜日別データはまだ登録されていません。</p>';
         }
     }
 
-    // 🛠️ 追加：エラー報告・トラブルシューティングメールの送信ロジック
+    // トラブルシューティング用メール送信プログラム
     sendBugBtn.addEventListener('click', () => {
         const textValue = bugText.value.trim();
         if (!textValue) {
-            alert("エラー内容または不具合の状況を入力してください。");
+            alert("不具合の状況を入力してください。");
             return;
         }
 
         const targetEmail = "chikuwasalt.rgl@gmail.com";
-        const subject = encodeURIComponent("【Nagaraku】不具合・エラー報告");
+        const subject = encodeURIComponent("【Nagaraku】トラブルシューティング・エラー報告");
         
-        // トラブルシューティングに有益な基本状況の自動収集
         const userEmail = auth.currentUser ? auth.currentUser.email : "未ログイン";
         const userClassInfo = document.getElementById('account-profile-info').innerText || "未設定";
-        const userAgent = navigator.userAgent; // 端末環境ブラウザ情報
+        const userAgent = navigator.userAgent;
 
-        const bodyTemplate = `【不具合・エラー報告内容】
+        const bodyTemplate = `【不具合・エラーの報告】
 ${textValue}
 
 ----------------------------------------
-【アプリ環境データ（トラブルシューティング用）】
-・アカウント: ${userEmail}
-・登録クラス: ${userClassInfo}
-・環境情報: ${userAgent}
+【トラブルシューティング用データ】
+・ユーザーアカウント: ${userEmail}
+・プロフィール設定: ${userClassInfo}
+・デバイス環境: ${userAgent}
 ----------------------------------------`;
 
         const body = encodeURIComponent(bodyTemplate);
-
-        // mailto リンクを構築して、メーラーアプリを起動
         window.location.href = `mailto:${targetEmail}?subject=${subject}&body=${body}`;
-        
-        // 入力フォームを初期化
         bugText.value = "";
     });
 });

@@ -25,22 +25,24 @@
         }
         .overlay-card {
             background-color: var(--card-bg);
-            padding: 30px 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            padding: 35px 25px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
             width: 100%;
             max-width: 350px;
         }
         .overlay-title {
-            font-size: 1.5rem;
-            color: var(--primary-color);
-            margin-bottom: 10px;
+            font-size: 1.6rem;
+            color: #334e68;
+            margin-bottom: 8px;
             font-weight: bold;
+            letter-spacing: 0.5px;
         }
         .overlay-desc {
             font-size: 0.9rem;
-            color: #666;
+            color: #627d98;
             margin-bottom: 25px;
+            line-height: 1.5;
         }
         #login-screen, #setup-screen {
             display: none; 
@@ -53,9 +55,9 @@
     
     <div id="login-screen" class="overlay-screen">
         <div class="overlay-card">
-            <div class="overlay-title">Nagaraku</div>
-            <div class="overlay-desc">Nagarakuを利用するには、<br>学校のGoogleアカウントでログインしてください。</div>
-            <button id="main-login-btn" style="background-color: var(--primary-color); color: white; border: none; padding: 12px 20px; border-radius: 8px; font-size: 1.1rem; width: 100%; cursor: pointer; font-weight: bold;">Googleでログイン</button>
+            <div style="font-size: 3rem; margin-bottom: 15px; background: linear-gradient(135deg, #48cae4, #00b4d8); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900;">N</div>            <div class="overlay-title">Nagaraku</div>
+            <div class="overlay-desc">利用するには、学校の<br>Googleアカウントでログインしてください。</div>
+            <button id="main-login-btn" style="background: linear-gradient(135deg, #4ea8de, #56cfe1); color: white; border: none; padding: 14px 20px; border-radius: 12px; font-size: 1.05rem; width: 100%; cursor: pointer; font-weight: bold; box-shadow: 0 4px 12px rgba(78, 168, 222, 0.3);">Googleでログイン</button>
         </div>
     </div>
 
@@ -94,7 +96,7 @@
                     <label>出席番号</label>
                     <input type="number" id="setup-number" placeholder="例: 15" min="1">
                 </div>
-                <button id="setup-save-btn" style="background-color: #6bb374; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-size: 1.1rem; width: 100%; cursor: pointer; font-weight: bold; margin-top: 10px;">はじめる</button>
+                <button id="setup-save-btn" style="background: linear-gradient(135deg, #56cfe1, #72efdd); color: white; border: none; padding: 14px 20px; border-radius: 12px; font-size: 1.05rem; width: 100%; cursor: pointer; font-weight: bold; margin-top: 10px; box-shadow: 0 4px 12px rgba(86, 207, 225, 0.3);">はじめる</button>
             </div>
         </div>
     </div>
@@ -115,6 +117,7 @@
     </header>
 
     <main id="main-content" style="display: none;"> 
+        
         <div id="tab-schedule" class="tab-content active">
             <div class="day-selector">
                 <button id="prev-day-btn" class="day-btn">◀</button>
@@ -151,21 +154,21 @@
                     <span id="developer-badge" class="dev-badge" style="display: none;">◆ 開発者</span>
                 </div>
                 
-                <p id="account-profile-info" style="color: #666; font-size: 0.9rem; margin-top: 5px; font-weight: bold;"></p>
+                <p id="account-profile-info" style="color: #627d98; font-size: 0.9rem; margin-top: 5px; font-weight: 600;"></p>
                 <p id="account-status">Classroomと連携するにはログインしてください。</p>
-                <button id="logout-btn" style="background-color: var(--danger-color); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-size: 1rem; width: 100%; margin-top: 15px; cursor: pointer; font-weight: bold;">ログアウト</button>
+                <button id="logout-btn" style="background-color: var(--danger-color); color: white; border: none; padding: 11px 20px; border-radius: 10px; font-size: 0.95rem; width: 100%; margin-top: 15px; cursor: pointer; font-weight: bold;">ログアウト</button>
             </div>
 
             <div class="card bug-report-card">
-                <h3 class="section-title" style="margin-bottom: 6px;">🛠️ トラブルシューティング・不具合報告</h3>
-                <p style="font-size: 0.8rem; color: #666; margin-bottom: 12px; line-height: 1.4;">
-                    アプリの動作に不備やエラーが発生した場合は、下のフォームに内容を入力して開発者へ報告メールを送信できます。
+                <h3 class="section-title" style="margin-bottom: 6px;">🛠️ トラブルシューティング</h3>
+                <p style="font-size: 0.8rem; color: #627d98; margin-bottom: 12px; line-height: 1.4;">
+                    アプリの動作に不備やエラーが発生した場合は、ここから開発者へ状況を直接メール報告できます。
                 </p>
                 <div class="form-group">
                     <label>エラー内容・不具合の状況</label>
-                    <textarea id="bug-text" rows="4" placeholder="例：時間割が表示されない、エラーログが出ている、など具体的な状況を教えてください。" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 0.95rem; box-sizing: border-box; resize: vertical; font-family: inherit;"></textarea>
+                    <textarea id="bug-text" rows="4" placeholder="例：時間割が表示されない、特定のボタンが反応しないなど" style="width: 100%; padding: 12px; border: 1px solid #dee2e6; border-radius: 10px; font-size: 0.95rem; box-sizing: border-box; resize: vertical; font-family: inherit; background-color: #f8f9fa;"></textarea>
                 </div>
-                <button id="send-bug-btn" style="background-color: #7042c1; color: white; border: none; padding: 11px 20px; border-radius: 8px; font-size: 1rem; width: 100%; cursor: pointer; font-weight: bold; transition: 0.2s;">報告メールを作成する</button>
+                <button id="send-bug-btn" style="background: linear-gradient(135deg, #4ea8de, #64dfdf); color: white; border: none; padding: 12px 20px; border-radius: 10px; font-size: 0.95rem; width: 100%; cursor: pointer; font-weight: bold; transition: 0.2s;">報告メールを作成する</button>
             </div>
 
             <div class="card" id="profile-settings">
@@ -217,7 +220,7 @@
             </svg>
             <span class="nav-text">タスク</span>
         </button>
-        <button class="nav-btn" onclick="switchTab('account', 'アカウント', this)">
+        <button class="nav-btn" onclick="switchTab('account', '設定・アカウント', this)">
             <svg class="nav-svg" viewBox="0 0 24 24">
                 <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
             </svg>
