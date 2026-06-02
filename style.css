@@ -204,7 +204,7 @@ main {
     margin: 0 auto 12px auto;
 }
 
-/* 🛠️ 名前とバッジの縦位置を綺麗に揃えるためのラッパーコンテナ */
+/* 名前とバッジの縦位置を綺麗に揃えるためのラッパーコンテナ */
 .account-name-wrapper {
     display: flex;
     align-items: center;
@@ -213,6 +213,7 @@ main {
     margin-bottom: 2px;
 }
 
+/* 🛠️ お名前を元のしっかりとした太字（bold）に修正 */
 #account-name {
     font-size: 1.15rem;
     font-weight: bold;
@@ -328,7 +329,7 @@ main {
     margin-top: 10px;
 }
 
-/* ✨ 開発者バッジ：位置ズレを解消し上下中央を完全ロック ✨ */
+/* 開発者バッジ：位置ズレを解消し上下中央を完全ロック */
 .dev-badge {
     background: linear-gradient(135deg, #a176e8 0%, #7042c1 100%); 
     color: #ffffff;
