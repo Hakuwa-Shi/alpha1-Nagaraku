@@ -1,9 +1,9 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-// Firestoreの機能をインポート（setDoc と getDoc を追加）
+// Firestoreの機能をインポート
 import { getFirestore, collection, addDoc, onSnapshot, query, where, doc, deleteDoc, orderBy, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-// 【重要】あなたのFirebase設定値に置き換えてください
+// Firebaseの設定値
 const firebaseConfig = {
     apiKey: "AIzaSyDRJK_M5KuILJ3kkOraiEOQNKoJ1fqe7_c", 
     authDomain: "nagata-tankyu-404.firebaseapp.com", 
@@ -16,7 +16,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
-// ✨ Firestoreの初期化
 const db = getFirestore(app);
 
 // リアルタイム通信の監視を止めるための関数を入れておく変数
@@ -35,6 +34,7 @@ window.switchTab = function(tabId, title, btnElement) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    // ⚙️ HTMLの要素をすべて最初にまとめて取得（これで順番エラーを防ぎます）
     const loginBtn = document.getElementById('login-btn');
     const accountName = document.getElementById('account-name');
     const accountStatus = document.getElementById('account-status');
@@ -42,6 +42,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const todoInput = document.getElementById('todo-input');
     const todoAddBtn = document.getElementById('todo-add-btn');
     const todoList = document.getElementById('todo-list');
+
+    const profileSettings = document.getElementById('profile-settings');
+    const profileNickname = document.getElementById('profile-nickname');
+    const profileGrade = document.getElementById('profile-grade');
+    const profileClass = document.getElementById('profile-class');
+    const profileNumber = document.getElementById('profile-number');
+    const profileSaveBtn = document.getElementById('profile-save-btn');
 
     // --- Googleログイン・ログアウト処理 ---
     loginBtn.addEventListener('click', () => {
@@ -56,30 +63,32 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- ユーザーのログイン状態を監視するリスナー ---
-    // --- ユーザーのログイン状態を監視するリスナー ---
     onAuthStateChanged(auth, (user) => {
         if (user) {
+            // 【ログイン時】
             accountName.innerText = user.displayName;
             accountStatus.innerText = `${user.email} でログインしています`;
             loginBtn.innerText = "ログアウト";
             loginBtn.style.backgroundColor = "var(--danger-color)";
             
-            // 👇追加：設定フォームを表示して、データを読み込む
+            // プロフィール設定フォームを表示して、データを読み込む
             profileSettings.style.display = "block";
             loadUserProfile(user.uid);
-
             loadUserTodos(user.uid);
         } else {
             // 【ログアウト時】
             accountName.innerText = "ゲストユーザー";
-            document.getElementById('account-profile-info').innerText = ""; // ✨追加：クラス表示をクリア
+            document.getElementById('account-profile-info').innerText = ""; 
             accountStatus.innerText = "Classroomと連携するにはログインしてください。";
-            document.getElementById('developer-badge').style.display = "none"; // ✨追加：バッジを隠す
+            document.getElementById('developer-badge').style.display = "none"; 
+            profileSettings.style.display = "none";
+
+            if (unsubscribeTodos) unsubscribeTodos();
+            todoList.innerHTML = '<p style="text-align:center; color:#888; padding:20px;">ログインするとタスクを管理できます</p>';
         }
     });
 
     // --- Todoの追加処理 ---
-    // --- Todoの追加処理（調査モード） ---
     todoAddBtn.addEventListener('click', async () => {
         console.log("【チェック1】追加ボタンが押されました！");
         
@@ -105,7 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 createdAt: new Date()
             });
             console.log("【チェック5】Firestoreへの保存が完全に成功しました！");
-            todoInput.value = ""; // 入力欄を空にする
+            todoInput.value = ""; 
         } catch (error) {
             console.error("❌データ追加でエラーが発生しました:", error);
         }
@@ -113,34 +122,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- ログインユーザーのTodoをリアルタイムに読み込む関数 ---
     function loadUserTodos(uid) {
-        // すでに監視中なら一度ストップ
         if (unsubscribeTodos) unsubscribeTodos();
 
-        // データベースから「このユーザーのUIDと同じデータ」だけを、時間が新しい順に取得するクエリ（命令）
         const q = query(
             collection(db, "todos"),
             where("uid", "==", uid),
             orderBy("createdAt", "desc")
         );
 
-        // データベースが更新されるたびに自動で画面を書き換える（リアルタイムリッスン）
         unsubscribeTodos = onSnapshot(q, (querySnapshot) => {
-            todoList.innerHTML = ""; // 一度画面をリセット
+            todoList.innerHTML = ""; 
 
             if (querySnapshot.empty) {
                 todoList.innerHTML = '<p style="text-align:center; color:#888; padding:20px;">タスクはすべて完了です！✨</p>';
                 return;
             }
 
-            // カードの土台を作成
             const cardDiv = document.createElement('div');
             cardDiv.className = 'card';
 
             querySnapshot.forEach((docSnap) => {
                 const todoData = docSnap.data();
-                const todoId = docSnap.id; // 削除するときに必要なデータの個別ID
+                const todoId = docSnap.id; 
 
-                // Todoの1行分のHTMLを作成
                 const todoItem = document.createElement('div');
                 todoItem.className = 'todo-item';
                 todoItem.innerHTML = `
@@ -148,10 +152,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     <button class="delete-btn" data-id="${todoId}">完了</button>
                 `;
 
-                // 完了（削除）ボタンのクリックイベントを設定
                 todoItem.querySelector('.delete-btn').addEventListener('click', async (e) => {
                     const id = e.target.getAttribute('data-id');
-                    // Firestoreから該当するデータを消去
                     await deleteDoc(doc(db, "todos", id));
                 });
 
@@ -161,52 +163,42 @@ document.addEventListener('DOMContentLoaded', () => {
             todoList.appendChild(cardDiv);
         }, (error) => {
             console.error("Firestore読み込みエラー:", error);
-            // ※「インデックスが必要です」というエラーが出た場合はエラーログのURLをクリックして1秒で解決できます
         });
     }
-// === 👤 プロフィール（クラス情報）機能 ===
-    const profileSettings = document.getElementById('profile-settings');
-    const profileNickname = document.getElementById('profile-nickname');
-    const profileGrade = document.getElementById('profile-grade');
-    const profileClass = document.getElementById('profile-class');
-    const profileNumber = document.getElementById('profile-number');
-    const profileSaveBtn = document.getElementById('profile-save-btn');
-      
-    // ✨新規追加：開発者バッジの判定関数
+
+    // === 👤 プロフィール（クラス情報）機能 ===
+    
+    // 開発者バッジの判定関数
     function checkDeveloperBadge(grade, classNum, studentNum) {
         const devBadge = document.getElementById('developer-badge');
-        // 「2年」かつ「6組」かつ「16番」なら表示、それ以外は非表示
         if (grade === "2" && classNum === "6" && studentNum === "16") {
             devBadge.style.display = "inline-block";
         } else {
             devBadge.style.display = "none";
         }
     }
-    // ログインユーザーのプロフィールを読み込む関数
+
     // ログインユーザーのプロフィールを読み込む関数
     async function loadUserProfile(uid) {
         try {
             const userDocRef = doc(db, "users", uid);
-            const userSnap = await getDoc(userDocRef);// 【読み込み時の修正】loadUserProfile関数の中
-            if (data.grade && data.classNum && data.studentNum) {
-                document.getElementById('account-profile-info').innerText = `${data.grade}年 ${data.classNum}組 ${data.studentNum}番`;
-                // ✨追加：読み込んだデータでバッジ判定
-                checkDeveloperBadge(data.grade, data.classNum, data.studentNum);
-            }
+            const userSnap = await getDoc(userDocRef);
 
             if (userSnap.exists()) {
                 const data = userSnap.data();
                 profileNickname.value = data.nickname || "";
                 profileGrade.value = data.grade || "1";
-                profileClass.value = data.classNum || "1"; // デフォルトを1に
+                profileClass.value = data.classNum || "1"; 
                 profileNumber.value = data.studentNum || "";
                 
                 if (data.nickname) {
                     document.getElementById('account-name').innerText = data.nickname;
                 }
-                // ✨新規追加：データがあれば「〇年 〇組 〇番」と表示する
+                
                 if (data.grade && data.classNum && data.studentNum) {
                     document.getElementById('account-profile-info').innerText = `${data.grade}年 ${data.classNum}組 ${data.studentNum}番`;
+                    // 🛠️ データを読み込み終わった後にバッジ判定を実行！
+                    checkDeveloperBadge(data.grade, data.classNum, data.studentNum);
                 }
             }
         } catch (error) {
@@ -215,13 +207,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // 保存ボタンが押された時の処理
-    profileSaveBtn.addEventListener('click', async () => {// 【保存時の修正】profileSaveBtnのイベントの中
-        if (profileData.grade && profileData.classNum && profileData.studentNum) {
-            document.getElementById('account-profile-info').innerText = `${profileData.grade}年 ${profileData.classNum}組 ${profileData.studentNum}番`;
-            // ✨追加：保存したデータでバッジ判定
-            checkDeveloperBadge(profileData.grade, profileData.classNum, profileData.studentNum);
-        }
-        
+    profileSaveBtn.addEventListener('click', async () => {
         if (!auth.currentUser) return;
         
         const uid = auth.currentUser.uid;
@@ -240,9 +226,11 @@ document.addEventListener('DOMContentLoaded', () => {
             if (profileData.nickname) {
                 document.getElementById('account-name').innerText = profileData.nickname;
             }
-            // ✨新規追加：保存成功直後に画面の表示も更新する
+            
             if (profileData.grade && profileData.classNum && profileData.studentNum) {
                 document.getElementById('account-profile-info').innerText = `${profileData.grade}年 ${profileData.classNum}組 ${profileData.studentNum}番`;
+                // 🛠️ 保存が完全に成功した後にバッジ判定を実行！
+                checkDeveloperBadge(profileData.grade, profileData.classNum, profileData.studentNum);
             }
         } catch (error) {
             console.error("プロフィール保存エラー:", error);
