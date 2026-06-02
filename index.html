@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nagaraku</title>
-    <link rel="stylesheet" href="style.css?v=4">
+    <link rel="stylesheet" href="style.css?v=5">
     <style>
         /* 強制ログイン・初期設定画面用のスタイル */
         .overlay-screen {
@@ -103,17 +103,19 @@
     </div>
 
     <header>
-        <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
-            <span style="background: white; color: #00b4d8; width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; border-radius: 6px; font-weight: 900; font-size: 0.9rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">N</span>
-            <span id="header-title">今日の時間割</span>
-        </div>
-        <div class="header-user-container" id="header-user-container" style="display: none;">
-            <button id="header-user-btn" class="header-user-btn" aria-label="ユーザーメニュー">
-                <svg class="icon-svg" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5-4-8-4z"/></svg>
-            </button>
-            <div id="user-popup" class="user-popup">
-                <div id="popup-email" class="popup-email">loading...</div>
-                <div id="popup-info" class="popup-info"></div>
+        <div class="header-content-wrapper">
+            <div class="header-logo-title">
+                <span class="header-logo-badge">N</span>
+                <span id="header-title">今日の時間割</span>
+            </div>
+            <div class="header-user-container" id="header-user-container">
+                <button id="header-user-btn" class="header-user-btn" aria-label="ユーザーメニュー" style="display: none;">
+                    <svg class="icon-svg" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5-4-8-4z"/></svg>
+                </button>
+                <div id="user-popup" class="user-popup">
+                    <div id="popup-email" class="popup-email"></div>
+                    <div id="popup-info" class="popup-info"></div>
+                </div>
             </div>
         </div>
     </header>
