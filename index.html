@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nagaraku</title>
-    <link rel="stylesheet" href="style.css?v=5">
+    <link rel="stylesheet" href="style.css?v=6">
     <style>
         /* 強制ログイン・初期設定画面用のスタイル */
         .overlay-screen {
@@ -128,9 +128,11 @@
                 <span id="current-day-label">月曜日</span>
                 <button id="next-day-btn" class="day-btn">▶</button>
             </div>
-            <div id="schedule-list" style="text-align: center; padding: 40px 20px;">
-                <div style="font-size: 2.5rem; margin-bottom: 10px; background: linear-gradient(135deg, #48cae4, #00b4d8); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900; animation: pulse 1.5s infinite alternate;">N</div>
-                <p style="color:#888; margin: 0; font-size: 0.9rem;">時間割を読み込み中...</p>
+            <div id="schedule-list">
+                <div style="text-align: center; padding: 20px;">
+                    <div style="font-size: 2rem; margin-bottom: 5px; background: linear-gradient(135deg, #48cae4, #00b4d8); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900; animation: pulse 1.5s infinite alternate;">N</div>
+                    <p style="color:#888; margin: 0; font-size: 0.85rem;">時間割を読み込み中...</p>
+                </div>
             </div>
         </div>
 
@@ -154,7 +156,8 @@
                     <span id="account-name">ゲストユーザー</span>
                     <span id="developer-badge" class="dev-badge" style="display: none;">◆ 開発者</span>
                 </div>
-                <p id="account-profile-info" style="color: #627d98; font-size: 0.9rem; margin-top: 5px; font-weight: 600;"></p>
+                
+                <p id="account-profile-info" style="color: #627d98; font-size: 0.9rem; margin-top: 5px; font-weight: 700;"></p>
                 <p id="account-status">Classroomと連携するにはログインしてください。</p>
                 <button id="logout-btn" style="background-color: var(--danger-color); color: white; border: none; padding: 11px 20px; border-radius: 10px; font-size: 0.95rem; width: 100%; margin-top: 15px; cursor: pointer; font-weight: bold;">ログアウト</button>
             </div>
@@ -229,6 +232,26 @@
     </nav>
 </div>
 
+    <script>
+        // script.jsの読み込み完了後にヘッダーテキストをニックネームに書き換える監視処理
+        const observer = new MutationObserver(() => {
+            const container = document.getElementById('header-user-container');
+            const nicknameInput = document.getElementById('profile-nickname');
+            const gradeSelect = document.getElementById('profile-grade');
+            const classSelect = document.getElementById('profile-class');
+            const numberInput = document.getElementById('profile-number');
+            
+            if (container && nicknameInput && nicknameInput.value) {
+                const name = nicknameInput.value;
+                const grade = gradeSelect.value || "2";
+                const cls = classSelect.value || "6";
+                const num = numberInput.value || "16";
+                // 内部をニックネームとクラス情報の太字に書き換え
+                container.innerHTML = `<span style="font-weight: 800; color: white;">${name}さん<br>${grade}年${cls}組 ${num}番</span>`;
+            }
+        });
+        observer.observe(document.body, { childList: true, subtree: true });
+    </script>
     <script src="script.js" type="module"></script>
 </body>
 </html>
