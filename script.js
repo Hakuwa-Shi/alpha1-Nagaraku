@@ -358,7 +358,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- 📅 時間割生成（土日の際に休日を表す記号を追加） ---
+    // --- 📅 時間割生成（土日の判定及び休日テキスト出力を修正） ---
     function renderSchedule(grade, classNum, day) {
         const scheduleList = document.getElementById('schedule-list');
         const dayLabel = document.getElementById('current-day-label');
@@ -366,11 +366,11 @@ document.addEventListener('DOMContentLoaded', () => {
         dayLabel.innerText = dayLabels[day];
         scheduleList.innerHTML = ""; 
 
-        // 土曜日・日曜日の場合に文字化けしない星型記号（**）をレイアウトに適用
+        // 🛠️ 土曜日(6) or 日曜日(0) の場合の判定
         if (day === 0 || day === 6) {
             scheduleList.innerHTML = `
                 <div style="text-align:center; color:#888; padding:40px 20px;">
-                    <p style="font-weight: bold; color: var(--text-color); font-size: 1.3rem; margin-bottom: 12px;">
+                    <p style="font-weight: bold; color: #333333; font-size: 1.3rem; margin-bottom: 12px;">
                         ** 学校はお休みです **
                     </p>
                     <p style="font-size: 0.95rem; line-height: 1.6; color: #555;">

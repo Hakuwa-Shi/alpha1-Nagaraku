@@ -5,7 +5,6 @@
     --text-color: #333333;
     --card-bg: #FFFFFF;
     --danger-color: #e06666;
-    --developer-color: #7b529d; /* 開発者バッジ用の深い紫色 */
 }
 
 body {
@@ -242,14 +241,14 @@ main {
 }
 /* ボトムバーのアイコンサイズアップ */
 .nav-svg {
-    width: 25px; /* 22px から 25px へ少し拡大 */
+    width: 25px; 
     height: 25px;
     fill: #888; 
     transition: 0.2s;
 }
 /* ボトムバーのテキストサイズアップ */
 .nav-text {
-    font-size: 0.85rem; /* 0.75rem から 0.85rem へ大きく変更 */
+    font-size: 0.85rem; 
     font-weight: bold;
     transition: 0.2s;
 }
@@ -321,18 +320,21 @@ main {
     margin-top: 10px;
 }
 
-/* 開発者バッジ（記号追加に伴う調整と紫色へのアップデート） */
+/* ✨ 開発者バッジ：全体を紫色＆煌びやかなグラデーションデザインにブラッシュアップ ✨ */
 .dev-badge {
-    background-color: var(--developer-color); /* 深い紫色をバックグランドに設定 */
+    background: linear-gradient(135deg, #a176e8 0%, #7042c1 100%); /* 美しいロイヤルパープルのグラデーション */
     color: #ffffff;
-    font-size: 0.75rem; /* 読みやすさのために少しサイズ調整 */
-    padding: 3px 8px;
-    border-radius: 5px;
+    font-size: 0.75rem; 
+    padding: 3px 9px;
+    border-radius: 20px; /* 角を丸くしてスタイリッシュに */
     margin-left: 8px;
     font-weight: bold;
     vertical-align: middle;
     letter-spacing: 0.5px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    display: inline-block;
+    /* 金色の輝きをイメージした微細なダブルシャドウで煌びやかさを演出 */
+    box-shadow: 0 2px 6px rgba(112, 66, 193, 0.4), 0 0 4px rgba(255, 215, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 /* 曜日切り替えセレクター */
