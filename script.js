@@ -1,7 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-// ✨ Firestoreの機能をインポート
-import { getFirestore, collection, addDoc, onSnapshot, query, where, doc, deleteDoc, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+// Firestoreの機能をインポート（setDoc と getDoc を追加）
+import { getFirestore, collection, addDoc, onSnapshot, query, where, doc, deleteDoc, orderBy, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 // 【重要】あなたのFirebase設定値に置き換えてください
 const firebaseConfig = {
@@ -56,24 +56,28 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- ユーザーのログイン状態を監視するリスナー ---
+    // --- ユーザーのログイン状態を監視するリスナー ---
     onAuthStateChanged(auth, (user) => {
         if (user) {
-            // 【ログイン時】
             accountName.innerText = user.displayName;
             accountStatus.innerText = `${user.email} でログインしています`;
             loginBtn.innerText = "ログアウト";
             loginBtn.style.backgroundColor = "var(--danger-color)";
+            
+            // 👇追加：設定フォームを表示して、データを読み込む
+            profileSettings.style.display = "block";
+            loadUserProfile(user.uid);
 
-            // ログインしたユーザー専用のTodo読み込みを開始
             loadUserTodos(user.uid);
         } else {
-            // 【ログアウト時】
             accountName.innerText = "ゲストユーザー";
             accountStatus.innerText = "Classroomと連携するにはログインしてください。";
             loginBtn.innerText = "Googleでログイン";
             loginBtn.style.backgroundColor = "var(--primary-color)";
+            
+            // 👇追加：設定フォームを隠す
+            profileSettings.style.display = "none";
 
-            // 監視を止めてTodo画面をクリア
             if (unsubscribeTodos) unsubscribeTodos();
             todoList.innerHTML = '<p style="text-align:center; color:#888; padding:20px;">ログインするとタスクを管理できます</p>';
         }
@@ -165,4 +169,64 @@ document.addEventListener('DOMContentLoaded', () => {
             // ※「インデックスが必要です」というエラーが出た場合はエラーログのURLをクリックして1秒で解決できます
         });
     }
+// === 👤 プロフィール（クラス情報）機能 ===
+    const profileSettings = document.getElementById('profile-settings');
+    const profileNickname = document.getElementById('profile-nickname');
+    const profileGrade = document.getElementById('profile-grade');
+    const profileClass = document.getElementById('profile-class');
+    const profileNumber = document.getElementById('profile-number');
+    const profileSaveBtn = document.getElementById('profile-save-btn');
+
+    // ログインユーザーのプロフィールを読み込む関数
+    async function loadUserProfile(uid) {
+        try {
+            // "users" コレクションから、自分のUIDの名前がついたデータ箱を探す
+            const userDocRef = doc(db, "users", uid);
+            const userSnap = await getDoc(userDocRef);
+
+            if (userSnap.exists()) {
+                // データがあればフォームにセット
+                const data = userSnap.data();
+                profileNickname.value = data.nickname || "";
+                profileGrade.value = data.grade || "1";
+                profileClass.value = data.classNum || "";
+                profileNumber.value = data.studentNum || "";
+                
+                // 画面上の名前もニックネームに変更
+                if (data.nickname) {
+                    document.getElementById('account-name').innerText = data.nickname;
+                }
+            }
+        } catch (error) {
+            console.error("プロフィール読み込みエラー:", error);
+        }
+    }
+
+    // 保存ボタンが押された時の処理
+    profileSaveBtn.addEventListener('click', async () => {
+        if (!auth.currentUser) return;
+        
+        const uid = auth.currentUser.uid;
+        const profileData = {
+            nickname: profileNickname.value.trim(),
+            grade: profileGrade.value,
+            classNum: profileClass.value,
+            studentNum: profileNumber.value,
+            updatedAt: new Date()
+        };
+
+        try {
+            // "users" コレクションの、自分のUIDの場所にデータを上書き保存
+            await setDoc(doc(db, "users", uid), profileData, { merge: true });
+            alert("プロフィールを保存しました！");
+            
+            // アカウント名の表示を更新
+            if (profileData.nickname) {
+                document.getElementById('account-name').innerText = profileData.nickname;
+            }
+        } catch (error) {
+            console.error("プロフィール保存エラー:", error);
+            alert("保存に失敗しました。");
+        }
+    });
 });

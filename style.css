@@ -200,3 +200,34 @@ main {
     cursor: pointer;
     margin-left: auto;
 }
+
+/* プロフィール設定フォーム用 */
+.form-group {
+    margin-bottom: 15px;
+}
+.form-group label {
+    display: block;
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 5px;
+}
+.form-group input, .form-group select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+    box-sizing: border-box; /* はみ出し防止 */
+}
+#profile-save-btn {
+    background-color: #34C759; /* 緑色で分かりやすく */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 1rem;
+    width: 100%;
+    cursor: pointer;
+    font-weight: bold;
+    margin-top: 10px;
+}

@@ -50,6 +50,31 @@
                 <p id="account-status">Classroomと連携するにはログインしてください。</p>
                 <button id="login-btn">Googleでログイン</button>
             </div>
+
+            <div class="card" id="profile-settings" style="display: none;">
+                <h3 class="section-title">クラス情報の設定</h3>
+                <div class="form-group">
+                    <label>ニックネーム</label>
+                    <input type="text" id="profile-nickname" placeholder="例: 塩谷">
+                </div>
+                <div class="form-group">
+                    <label>学年</label>
+                    <select id="profile-grade">
+                        <option value="1">1年</option>
+                        <option value="2">2年</option>
+                        <option value="3">3年</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>組</label>
+                    <input type="number" id="profile-class" placeholder="例: 3" min="1">
+                </div>
+                <div class="form-group">
+                    <label>出席番号</label>
+                    <input type="number" id="profile-number" placeholder="例: 15" min="1">
+                </div>
+                <button id="profile-save-btn">保存する</button>
+            </div>
         </div>
     </main>
 
