@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nagaraku</title>
-    <link rel="stylesheet" href="style.css?v=3">
+    <link rel="stylesheet" href="style.css?v=4">
     <style>
         /* 強制ログイン・初期設定画面用のスタイル */
         .overlay-screen {
@@ -107,11 +107,25 @@
             <span style="background: white; color: #00b4d8; width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; border-radius: 6px; font-weight: 900; font-size: 0.9rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">N</span>
             <span id="header-title">今日の時間割</span>
         </div>
+        <div class="header-user-container" id="header-user-container" style="display: none;">
+            <button id="header-user-btn" class="header-user-btn" aria-label="ユーザーメニュー">
+                <svg class="icon-svg" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5-4-8-4z"/></svg>
+            </button>
+            <div id="user-popup" class="user-popup">
+                <div id="popup-email" class="popup-email">loading...</div>
+                <div id="popup-info" class="popup-info"></div>
+            </div>
+        </div>
     </header>
 
     <main id="main-content" style="display: none;"> 
         
         <div id="tab-schedule" class="tab-content active">
+            <div class="day-selector">
+                <button id="prev-day-btn" class="day-btn">◀</button>
+                <span id="current-day-label">月曜日</span>
+                <button id="next-day-btn" class="day-btn">▶</button>
+            </div>
             <div id="schedule-list" style="text-align: center; padding: 40px 20px;">
                 <div style="font-size: 2.5rem; margin-bottom: 10px; background: linear-gradient(135deg, #48cae4, #00b4d8); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900; animation: pulse 1.5s infinite alternate;">N</div>
                 <p style="color:#888; margin: 0; font-size: 0.9rem;">時間割を読み込み中...</p>
@@ -120,12 +134,10 @@
 
         <div id="tab-tasks" class="tab-content">
             <h3 class="section-title">未完了のタスク</h3>
-            
             <div class="card todo-form-card">
                 <input type="text" id="todo-input" placeholder="新しいタスクを入力...">
                 <button id="todo-add-btn">追加</button>
             </div>
-        
             <div id="todo-list"></div>
         </div>
         
@@ -136,15 +148,25 @@
                         <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5-4-8-4z"/>
                     </svg>
                 </div>
-                
                 <div class="account-name-wrapper">
                     <span id="account-name">ゲストユーザー</span>
                     <span id="developer-badge" class="dev-badge" style="display: none;">◆ 開発者</span>
                 </div>
-                
                 <p id="account-profile-info" style="color: #627d98; font-size: 0.9rem; margin-top: 5px; font-weight: 600;"></p>
                 <p id="account-status">Classroomと連携するにはログインしてください。</p>
                 <button id="logout-btn" style="background-color: var(--danger-color); color: white; border: none; padding: 11px 20px; border-radius: 10px; font-size: 0.95rem; width: 100%; margin-top: 15px; cursor: pointer; font-weight: bold;">ログアウト</button>
+            </div>
+
+            <div class="card bug-report-card">
+                <h3 class="section-title" style="margin-bottom: 6px;">🛠️ トラブルシューティング</h3>
+                <p style="font-size: 0.8rem; color: #627d98; margin-bottom: 12px; line-height: 1.4;">
+                    アプリの動作に不備やエラーが発生した場合は、ここから開発者へ状況を直接メール報告できます。
+                </p>
+                <div class="form-group">
+                    <label>エラー内容・不具合の状況</label>
+                    <textarea id="bug-text" rows="4" placeholder="例：時間割が表示されない、特定のボタンが反応しないなど" style="width: 100%; padding: 12px; border: 1px solid #dee2e6; border-radius: 10px; font-size: 0.95rem; box-sizing: border-box; resize: vertical; font-family: inherit; background-color: #f8f9fa;"></textarea>
+                </div>
+                <button id="send-bug-btn" style="background: linear-gradient(135deg, #4ea8de, #64dfdf); color: white; border: none; padding: 12px 20px; border-radius: 10px; font-size: 0.95rem; width: 100%; cursor: pointer; font-weight: bold;">報告メールを作成する</button>
             </div>
 
             <div class="card" id="profile-settings">
