@@ -231,3 +231,18 @@ main {
     font-weight: bold;
     margin-top: 10px;
 }
+
+/* 開発者バッジのデザイン */
+.dev-badge {
+    background: linear-gradient(135deg, #FFD700, #FFA500); /* ゴールドのグラデーション */
+    color: #fff;
+    text-shadow: 0 1px 1px rgba(0,0,0,0.2);
+    font-size: 0.75rem;
+    padding: 3px 8px;
+    border-radius: 12px;
+    margin-left: 10px;
+    font-weight: bold;
+    box-shadow: 0 2px 5px rgba(255, 165, 0, 0.4);
+    vertical-align: middle;
+}
+

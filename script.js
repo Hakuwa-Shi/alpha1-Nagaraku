@@ -74,6 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
             accountName.innerText = "ゲストユーザー";
             document.getElementById('account-profile-info').innerText = ""; // ✨追加：クラス表示をクリア
             accountStatus.innerText = "Classroomと連携するにはログインしてください。";
+            document.getElementById('developer-badge').style.display = "none"; // ✨追加：バッジを隠す
         }
     });
 
@@ -170,13 +171,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const profileClass = document.getElementById('profile-class');
     const profileNumber = document.getElementById('profile-number');
     const profileSaveBtn = document.getElementById('profile-save-btn');
-
+      
+    // ✨新規追加：開発者バッジの判定関数
+    function checkDeveloperBadge(grade, classNum, studentNum) {
+        const devBadge = document.getElementById('developer-badge');
+        // 「2年」かつ「6組」かつ「16番」なら表示、それ以外は非表示
+        if (grade === "2" && classNum === "6" && studentNum === "16") {
+            devBadge.style.display = "inline-block";
+        } else {
+            devBadge.style.display = "none";
+        }
+    }
     // ログインユーザーのプロフィールを読み込む関数
     // ログインユーザーのプロフィールを読み込む関数
     async function loadUserProfile(uid) {
         try {
             const userDocRef = doc(db, "users", uid);
-            const userSnap = await getDoc(userDocRef);
+            const userSnap = await getDoc(userDocRef);// 【読み込み時の修正】loadUserProfile関数の中
+            if (data.grade && data.classNum && data.studentNum) {
+                document.getElementById('account-profile-info').innerText = `${data.grade}年 ${data.classNum}組 ${data.studentNum}番`;
+                // ✨追加：読み込んだデータでバッジ判定
+                checkDeveloperBadge(data.grade, data.classNum, data.studentNum);
+            }
 
             if (userSnap.exists()) {
                 const data = userSnap.data();
@@ -199,7 +215,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // 保存ボタンが押された時の処理
-    profileSaveBtn.addEventListener('click', async () => {
+    profileSaveBtn.addEventListener('click', async () => {// 【保存時の修正】profileSaveBtnのイベントの中
+        if (profileData.grade && profileData.classNum && profileData.studentNum) {
+            document.getElementById('account-profile-info').innerText = `${profileData.grade}年 ${profileData.classNum}組 ${profileData.studentNum}番`;
+            // ✨追加：保存したデータでバッジ判定
+            checkDeveloperBadge(profileData.grade, profileData.classNum, profileData.studentNum);
+        }
+        
         if (!auth.currentUser) return;
         
         const uid = auth.currentUser.uid;
