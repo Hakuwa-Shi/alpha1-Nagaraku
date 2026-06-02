@@ -114,7 +114,7 @@ main {
     flex-grow: 1;
     overflow-y: auto;
     padding: 12px;        
-    padding-bottom: 95px; /* メニューバー拡大に合わせて下部余白を拡張 */
+    padding-bottom: 95px; 
 }
 
 /* タブの切り替え制御 */
@@ -203,17 +203,27 @@ main {
     justify-content: center;
     margin: 0 auto 12px auto;
 }
-.profile-main-svg {
-    width: 36px;
-    height: 36px;
-    fill: var(--primary-color);
+
+/* 🛠️ 名前とバッジの縦位置を綺麗に揃えるためのラッパーコンテナ */
+.account-name-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px; /* 文字同士のほどよい間隔 */
+    margin-bottom: 2px;
 }
+
+#account-name {
+    font-size: 1.15rem;
+    font-weight: bold;
+}
+
 #account-status {
     font-size: 0.9rem;
     color: #888;
 }
 
-/* ボトムナビゲーション（メニューバーを少し大きめに修正） */
+/* ボトムナビゲーション */
 .bottom-nav {
     position: absolute;
     bottom: 0;
@@ -222,7 +232,7 @@ main {
     background-color: white;
     display: flex;
     justify-content: space-around;
-    padding: 12px 0; /* 内側の余白を広げて高さを確保 */
+    padding: 12px 0; 
     border-top: 1px solid #ddd;
     padding-bottom: env(safe-area-inset-bottom, 12px);
     z-index: 10;
@@ -237,16 +247,14 @@ main {
     flex-direction: column; 
     align-items: center;
     justify-content: center;
-    gap: 6px; /* アイコンと文字の間隔を少し広げてゆったりに */
+    gap: 6px; 
 }
-/* ボトムバーのアイコンサイズアップ */
 .nav-svg {
     width: 25px; 
     height: 25px;
     fill: #888; 
     transition: 0.2s;
 }
-/* ボトムバーのテキストサイズアップ */
 .nav-text {
     font-size: 0.85rem; 
     font-weight: bold;
@@ -320,21 +328,22 @@ main {
     margin-top: 10px;
 }
 
-/* ✨ 開発者バッジ：全体を紫色＆煌びやかなグラデーションデザインにブラッシュアップ ✨ */
+/* ✨ 開発者バッジ：位置ズレを解消し上下中央を完全ロック ✨ */
 .dev-badge {
-    background: linear-gradient(135deg, #a176e8 0%, #7042c1 100%); /* 美しいロイヤルパープルのグラデーション */
+    background: linear-gradient(135deg, #a176e8 0%, #7042c1 100%); 
     color: #ffffff;
-    font-size: 0.75rem; 
-    padding: 3px 9px;
-    border-radius: 20px; /* 角を丸くしてスタイリッシュに */
-    margin-left: 8px;
+    font-size: 0.72rem; 
+    padding: 2px 8px;
+    border-radius: 20px; 
     font-weight: bold;
-    vertical-align: middle;
-    letter-spacing: 0.5px;
-    display: inline-block;
-    /* 金色の輝きをイメージした微細なダブルシャドウで煌びやかさを演出 */
+    letter-spacing: 0.3px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     box-shadow: 0 2px 6px rgba(112, 66, 193, 0.4), 0 0 4px rgba(255, 215, 0, 0.4);
     border: 1px solid rgba(255, 255, 255, 0.2);
+    height: 18px; /* 高さを明示してズレを防止 */
+    line-height: 1;
 }
 
 /* 曜日切り替えセレクター */
@@ -366,4 +375,9 @@ main {
     font-size: 1rem;
     font-weight: bold;
     color: var(--text-color);
+}
+
+/* 報告フォームボタンのホバーエフェクト */
+#send-bug-btn:hover {
+    background-color: #5a32a3;
 }

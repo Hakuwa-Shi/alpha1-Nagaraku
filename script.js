@@ -101,6 +101,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const setupNumber = document.getElementById('setup-number');
     const setupSaveBtn = document.getElementById('setup-save-btn');
 
+    // 🛠️ トラブルシューティング用要素
+    const bugText = document.getElementById('bug-text');
+    const sendBugBtn = document.getElementById('send-bug-btn');
+
     headerUserBtn.addEventListener('click', (e) => {
         e.stopPropagation(); 
         userPopup.classList.toggle('active');
@@ -352,13 +356,12 @@ document.addEventListener('DOMContentLoaded', () => {
     function checkDeveloperBadge(grade, classNum, studentNum) {
         const devBadge = document.getElementById('developer-badge');
         if (grade === "2" && classNum === "6" && studentNum === "16") {
-            devBadge.style.display = "inline-block";
+            devBadge.style.display = "inline-flex";
         } else {
             devBadge.style.display = "none";
         }
     }
 
-    // --- 📅 時間割生成（土日の判定及び休日テキスト出力を修正） ---
     function renderSchedule(grade, classNum, day) {
         const scheduleList = document.getElementById('schedule-list');
         const dayLabel = document.getElementById('current-day-label');
@@ -366,7 +369,6 @@ document.addEventListener('DOMContentLoaded', () => {
         dayLabel.innerText = dayLabels[day];
         scheduleList.innerHTML = ""; 
 
-        // 🛠️ 土曜日(6) or 日曜日(0) の場合の判定
         if (day === 0 || day === 6) {
             scheduleList.innerHTML = `
                 <div style="text-align:center; color:#888; padding:40px 20px;">
@@ -401,4 +403,39 @@ document.addEventListener('DOMContentLoaded', () => {
             scheduleList.innerHTML = '<p style="text-align:center; color:#888; padding:20px;">このクラス・曜日の時間割はまだ登録されていません。</p>';
         }
     }
+
+    // 🛠️ 追加：エラー報告・トラブルシューティングメールの送信ロジック
+    sendBugBtn.addEventListener('click', () => {
+        const textValue = bugText.value.trim();
+        if (!textValue) {
+            alert("エラー内容または不具合の状況を入力してください。");
+            return;
+        }
+
+        const targetEmail = "chikuwasalt.rgl@gmail.com";
+        const subject = encodeURIComponent("【Nagaraku】不具合・エラー報告");
+        
+        // トラブルシューティングに有益な基本状況の自動収集
+        const userEmail = auth.currentUser ? auth.currentUser.email : "未ログイン";
+        const userClassInfo = document.getElementById('account-profile-info').innerText || "未設定";
+        const userAgent = navigator.userAgent; // 端末環境ブラウザ情報
+
+        const bodyTemplate = `【不具合・エラー報告内容】
+${textValue}
+
+----------------------------------------
+【アプリ環境データ（トラブルシューティング用）】
+・アカウント: ${userEmail}
+・登録クラス: ${userClassInfo}
+・環境情報: ${userAgent}
+----------------------------------------`;
+
+        const body = encodeURIComponent(bodyTemplate);
+
+        // mailto リンクを構築して、メーラーアプリを起動
+        window.location.href = `mailto:${targetEmail}?subject=${subject}&body=${body}`;
+        
+        // 入力フォームを初期化
+        bugText.value = "";
+    });
 });

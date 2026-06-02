@@ -146,14 +146,26 @@
                     </svg>
                 </div>
                 
-                <div class="card-main">
+                <div class="account-name-wrapper">
                     <span id="account-name">ゲストユーザー</span>
-                    <span id="developer-badge" class="dev-badge" style="display: none;">[◆ 開発者]</span>
+                    <span id="developer-badge" class="dev-badge" style="display: none;">◆ 開発者</span>
                 </div>
                 
                 <p id="account-profile-info" style="color: #666; font-size: 0.9rem; margin-top: 5px; font-weight: bold;"></p>
                 <p id="account-status">Classroomと連携するにはログインしてください。</p>
                 <button id="logout-btn" style="background-color: var(--danger-color); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-size: 1rem; width: 100%; margin-top: 15px; cursor: pointer; font-weight: bold;">ログアウト</button>
+            </div>
+
+            <div class="card bug-report-card">
+                <h3 class="section-title" style="margin-bottom: 6px;">🛠️ トラブルシューティング・不具合報告</h3>
+                <p style="font-size: 0.8rem; color: #666; margin-bottom: 12px; line-height: 1.4;">
+                    アプリの動作に不備やエラーが発生した場合は、下のフォームに内容を入力して開発者へ報告メールを送信できます。
+                </p>
+                <div class="form-group">
+                    <label>エラー内容・不具合の状況</label>
+                    <textarea id="bug-text" rows="4" placeholder="例：時間割が表示されない、エラーログが出ている、など具体的な状況を教えてください。" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 0.95rem; box-sizing: border-box; resize: vertical; font-family: inherit;"></textarea>
+                </div>
+                <button id="send-bug-btn" style="background-color: #7042c1; color: white; border: none; padding: 11px 20px; border-radius: 8px; font-size: 1rem; width: 100%; cursor: pointer; font-weight: bold; transition: 0.2s;">報告メールを作成する</button>
             </div>
 
             <div class="card" id="profile-settings">
