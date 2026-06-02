@@ -102,22 +102,16 @@
 
     <header id="header-title">今日の時間割</header>
 
-    <main id="main-content" style="display: none;"> <div id="tab-schedule" class="tab-content active">
-            <div class="card">
-                <div class="card-title">1限 (8:50 - 9:40)</div>
-                <div class="card-main">現代文 📖</div>
+    <main id="main-content" style="display: none;"> 
+        <div id="tab-schedule" class="tab-content active">
+            <div class="day-selector">
+                <button id="prev-day-btn" class="day-btn">◀</button>
+                <span id="current-day-label">月曜日</span>
+                <button id="next-day-btn" class="day-btn">▶</button>
             </div>
-            <div class="card">
-                <div class="card-title">2限 (9:50 - 10:40)</div>
-                <div class="card-main">数学II 📐</div>
-            </div>
-            <div class="card">
-                <div class="card-title">3限 (10:50 - 11:40)</div>
-                <div class="card-main">英語 🗣️</div>
-            </div>
-            <div class="card">
-                <div class="card-title">4限 (11:50 - 12:40)</div>
-                <div class="card-main">物理 ⚡</div>
+            
+            <div id="schedule-list">
+                <p style="text-align:center; color:#888; padding:20px;">時間割を読み込み中...</p>
             </div>
         </div>
 
@@ -182,7 +176,8 @@
         </div>
     </main>
 
-    <nav class="bottom-nav" id="bottom-nav" style="display: none;"> <button class="nav-btn active" onclick="switchTab('schedule', '今日の時間割', this)">
+    <nav class="bottom-nav" id="bottom-nav" style="display: none;"> 
+        <button class="nav-btn active" onclick="switchTab('schedule', '今日の時間割', this)">
             <span class="nav-icon">📅</span>
             <span>時間割</span>
         </button>

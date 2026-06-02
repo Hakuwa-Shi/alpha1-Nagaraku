@@ -246,3 +246,33 @@ main {
     vertical-align: middle;
 }
 
+/* ✨ 新規追加：曜日切り替えセレクター用のスタイル */
+.day-selector {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--card-bg);
+    border-radius: 12px;
+    padding: 10px 15px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+.day-btn {
+    background-color: var(--bg-color);
+    border: none;
+    border-radius: 8px;
+    padding: 8px 15px;
+    font-size: 1rem;
+    font-weight: bold;
+    color: var(--text-color);
+    cursor: pointer;
+    transition: 0.2s;
+}
+.day-btn:active {
+    background-color: #e2e8f0;
+}
+#current-day-label {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: var(--text-color);
+}
