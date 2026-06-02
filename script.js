@@ -18,7 +18,6 @@ const db = getFirestore(app);
 
 let unsubscribeTodos = null;
 
-// 📅 --- 時間割データ（絵文字の削除） ---
 const timeTable = [
     "08:30 - 09:20", // 1限
     "09:30 - 10:20", // 2限
@@ -359,7 +358,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- 📅 時間割生成関数（休日等のテキスト表現変更） ---
     function renderSchedule(grade, classNum, day) {
         const scheduleList = document.getElementById('schedule-list');
         const dayLabel = document.getElementById('current-day-label');

@@ -102,7 +102,11 @@
     <header>
         <span id="header-title">今日の時間割</span>
         <div class="header-user-container" id="header-user-container" style="display: none;">
-            <button id="header-user-btn" class="header-user-btn">MENU</button>
+            <button id="header-user-btn" class="header-user-btn" aria-label="ユーザーメニュー">
+                <svg class="icon-svg" viewBox="0 0 24 24">
+                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5-4-8-4z"/>
+                </svg>
+            </button>
             <div id="user-popup" class="user-popup">
                 <div id="popup-email" class="popup-email">loading...</div>
                 <div id="popup-info" class="popup-info"></div>
@@ -136,7 +140,11 @@
         
         <div id="tab-account" class="tab-content">
             <div class="card profile-card">
-                <div class="profile-text-icon">USER</div>
+                <div class="profile-icon-container">
+                    <svg class="profile-main-svg" viewBox="0 0 24 24">
+                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5-4-8-4z"/>
+                    </svg>
+                </div>
                 
                 <div class="card-main">
                     <span id="account-name">ゲストユーザー</span>
@@ -186,17 +194,4 @@
 
     <nav class="bottom-nav" id="bottom-nav" style="display: none;"> 
         <button class="nav-btn active" onclick="switchTab('schedule', '今日の時間割', this)">
-            <span class="nav-text-icon">時間割</span>
-        </button>
-        <button class="nav-btn" onclick="switchTab('tasks', '課題・Todo', this)">
-            <span class="nav-text-icon">タスク</span>
-        </button>
-        <button class="nav-btn" onclick="switchTab('account', 'アカウント', this)">
-            <span class="nav-text-icon">設定</span>
-        </button>
-    </nav>
-</div>
-
-    <script src="script.js" type="module"></script>
-</body>
-</html>
+            <svg
