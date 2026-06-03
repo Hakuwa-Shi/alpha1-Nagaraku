@@ -178,7 +178,7 @@ main {
     margin-bottom: 8px;
 }
 
-/* 🌟 チェックボックス制のTodoリストスタイル */
+/* チェックボックス制のTodoリストスタイル */
 .todo-container-card {
     background-color: var(--card-bg);
     border-radius: 12px;
@@ -364,7 +364,7 @@ main {
 
 .login-logo-img {
     width: 100%;
-    max-width: 180px; /* カード内でバランスの良いサイズに制限 */
+    max-width: 180px; 
     height: auto;
     object-fit: contain;
 }

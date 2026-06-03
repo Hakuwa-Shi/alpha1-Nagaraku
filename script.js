@@ -14,7 +14,8 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
-// ログイン後に自動でアプリに戻るための設定
+
+// ログイン時に毎回アカウント選択画面を出す設定
 provider.setCustomParameters({ prompt: 'select_account' });
 const db = getFirestore(app);
 
@@ -134,33 +135,49 @@ document.addEventListener('DOMContentLoaded', () => {
         renderSchedule(currentGrade, currentClass, displayDay);
     });
 
-    // 🌟 iPhone版Chromeでも100%ログインできるようにする安全なリダイレクト処理
+    // 📱 モバイル端末（スマホ・タブレット全般）かどうかの判定判定
+    const isMobileDevice = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+    // 🌟 スマホ用ログイン不具合の修正：デバイスに応じた最適なログイン方法の強制
     mainLoginBtn.addEventListener('click', () => {
-        // iPhoneのChromeやLINE内ブラウザ等はリダイレクト方式を強制
-        const isIOSChrome = navigator.userAgent.includes('CriOS') || navigator.userAgent.includes('FxiOS');
-        if (isIOSChrome) {
+        if (isMobileDevice) {
+            // iPhone Chrome, Safari, Android, LINE内ブラウザ等、スマホは100%リダイレクトを強制
             signInWithRedirect(auth, provider).catch((err) => {
-                console.error("リダイレクトエラー:", err);
-                // 万が一失敗した場合はポップアップを試す
-                signInWithPopup(auth, provider);
+                console.error("リダイレクト開始エラー:", err);
+                alert("ログイン画面への移動に失敗しました。もう一度お試しください。");
             });
         } else {
-            // SafariやPCは従来通りスムーズなポップアップ
+            // PCブラウザは従来どおりポップアップでスムーズに処理
             signInWithPopup(auth, provider).catch((error) => {
-                console.error("ポップアップエラー。リダイレクトに切り替えます:", error);
+                console.warn("ポップアップがブロックされました。リダイレクトに切り替えます:", error);
                 signInWithRedirect(auth, provider);
             });
         }
     });
 
     logoutBtn.addEventListener('click', () => {
-        signOut(auth);
+        signOut(auth).then(() => {
+            showLoginScreen();
+        });
     });
 
-    // リダイレクトから戻ってきた時のログイン結果をキャッチする（Chrome用）
-    getRedirectResult(auth).catch((error) => {
-        console.error("リダイレクトサインイン処理エラー:", error);
-    });
+    // 🌟 ログインリダイレクトから戻ってきた時の判定処理を最優先で確実に実行
+    async function checkRedirectResult() {
+        try {
+            const result = await getRedirectResult(auth);
+            if (result && result.user) {
+                console.log("リダイレクト経由でのログインに成功:", result.user.email);
+            }
+        } catch (error) {
+            console.error("リダイレクト認証処理中にエラーが発生しました:", error);
+            if (error.code === 'auth/cross-origin-isolated-failed' || error.code === 'auth/network-request-failed') {
+                alert("ブラウザのプライバシー制限によりログインに失敗した可能性があります。Safariなどの標準ブラウザ、またはシークレットモード解除をお試しください。");
+            }
+        }
+    }
+    
+    // アプリ起動時に最優先でリダイレクト結果を確認
+    checkRedirectResult();
 
     onAuthStateChanged(auth, async (user) => {
         if (user) {
@@ -177,6 +194,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             } catch (error) {
                 console.error("プロフィール確認エラー:", error);
+                // データベース障害対策として、認証さえあれば一旦メイン画面へ逃がす
+                showSetupScreen();
             }
         } else {
             showLoginScreen();
@@ -481,7 +500,7 @@ ${textValue}
 
 ----------------------------------------
 【トラブルシューティング用データ】
- racial・ユーザーアカウント: ${userEmail}
+・ユーザーアカウント: ${userEmail}
 ・プロフィール設定: ${userClassInfo}
 ・デバイス環境: ${userAgent}
 ----------------------------------------`;
