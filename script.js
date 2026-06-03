@@ -1,4 +1,4 @@
-const APP_VERSION = "Version alpha1.042";
+const APP_VERSION = "Version alpha1.043";
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getAuth, signInWithPopup, signInWithRedirect, GoogleAuthProvider, onAuthStateChanged, signOut, getRedirectResult } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
@@ -73,7 +73,7 @@ function executeTabSwitch(tabId, title, btnElement) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    // バージョン情報を一括反映
+    // バージョン情報を画面に反映（もしHTMLに .app-version があれば）
     document.querySelectorAll('.app-version').forEach(el => {
         el.innerText = APP_VERSION;
     });
@@ -140,19 +140,18 @@ document.addEventListener('DOMContentLoaded', () => {
         renderSchedule(currentGrade, currentClass, displayDay);
     });
 
-    // 🌟 iPhone/iOS環境での挙動を劇的に改善するログイン処理
+    // 🌟 修正：すべてのiPhone/iPad環境で確実にリダイレクトを強制する
     mainLoginBtn.addEventListener('click', () => {
-        // iPad, iPhone, iPodのすべて（Safari、Chrome、LINE内ブラウザ等）を検知
         const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
         
         if (isIOS) {
-            // iPhoneはポップアップブロックとCookie制限が非常に厳しいため、リダイレクト（画面遷移）を強制
+            alert("【iPhone検知】Googleログイン画面へ移動します...");
             signInWithRedirect(auth, provider).catch((err) => {
-                console.error("リダイレクト開始エラー:", err);
-                alert("ログインの開始に失敗しました: " + err.message);
+                console.error("リダイレクトエラー:", err);
+                alert("ログインの開始に失敗しました:\n" + err.message);
             });
         } else {
-            // PCやAndroidは快適なポップアップを優先し、失敗時のみリダイレクトに切り替え
+            // PCやAndroidは快適なポップアップ
             signInWithPopup(auth, provider).catch((error) => {
                 console.error("ポップアップエラー。リダイレクトに切り替えます:", error);
                 signInWithRedirect(auth, provider);
@@ -164,15 +163,14 @@ document.addEventListener('DOMContentLoaded', () => {
         signOut(auth);
     });
 
-    // 🌟 iPhoneのリダイレクト戻り時の処理とデバッグ
+    // 🌟 修正：リダイレクトから戻ってきた時の結果を画面に「必ず」アラート表示する
     getRedirectResult(auth).then((result) => {
         if (result && result.user) {
-            console.log("リダイレクトログイン成功:", result.user);
+            alert("【ログイン成功】アカウント: " + result.user.email);
         }
     }).catch((error) => {
         console.error("リダイレクトサインイン処理エラー:", error);
-        // エラーが発生している場合は、iPhoneの画面にアラートで原因を表示
-        alert("【iPhoneログインエラー】\nエラーコード: " + error.code + "\n原因: " + error.message + "\n\n※「auth/network-request-failed」等の場合は、ブラウザのセキュリティ制限(ITP)が原因です。下の解決策を試してください。");
+        alert("【iPhoneログインエラー】\nエラーコード: " + error.code + "\n原因: " + error.message);
     });
 
     onAuthStateChanged(auth, async (user) => {
