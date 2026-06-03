@@ -1,4 +1,4 @@
-const APP_VERSION = "Version alpha1.041";
+const APP_VERSION = "Version alpha1.042";
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getAuth, signInWithPopup, signInWithRedirect, GoogleAuthProvider, onAuthStateChanged, signOut, getRedirectResult } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
@@ -16,7 +16,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
-// ログイン後に自動でアプリに戻るための設定
 provider.setCustomParameters({ prompt: 'select_account' });
 const db = getFirestore(app);
 
@@ -74,7 +73,7 @@ function executeTabSwitch(tabId, title, btnElement) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    // 🌟 バージョン情報をHTMLの該当箇所へ一括反映
+    // バージョン情報を一括反映
     document.querySelectorAll('.app-version').forEach(el => {
         el.innerText = APP_VERSION;
     });
@@ -141,16 +140,19 @@ document.addEventListener('DOMContentLoaded', () => {
         renderSchedule(currentGrade, currentClass, displayDay);
     });
 
-    // 🌟 iPhone版Chromeでも100%ログインできるようにする安全なリダイレクト処理
+    // 🌟 iPhone/iOS環境での挙動を劇的に改善するログイン処理
     mainLoginBtn.addEventListener('click', () => {
-        // iPhone of Chrome or LINE browser force redirect method
-        const isIOSChrome = navigator.userAgent.includes('CriOS') || navigator.userAgent.includes('FxiOS');
-        if (isIOSChrome) {
+        // iPad, iPhone, iPodのすべて（Safari、Chrome、LINE内ブラウザ等）を検知
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+        
+        if (isIOS) {
+            // iPhoneはポップアップブロックとCookie制限が非常に厳しいため、リダイレクト（画面遷移）を強制
             signInWithRedirect(auth, provider).catch((err) => {
-                console.error("リダイレクトエラー:", err);
-                signInWithPopup(auth, provider);
+                console.error("リダイレクト開始エラー:", err);
+                alert("ログインの開始に失敗しました: " + err.message);
             });
         } else {
+            // PCやAndroidは快適なポップアップを優先し、失敗時のみリダイレクトに切り替え
             signInWithPopup(auth, provider).catch((error) => {
                 console.error("ポップアップエラー。リダイレクトに切り替えます:", error);
                 signInWithRedirect(auth, provider);
@@ -162,8 +164,15 @@ document.addEventListener('DOMContentLoaded', () => {
         signOut(auth);
     });
 
-    getRedirectResult(auth).catch((error) => {
+    // 🌟 iPhoneのリダイレクト戻り時の処理とデバッグ
+    getRedirectResult(auth).then((result) => {
+        if (result && result.user) {
+            console.log("リダイレクトログイン成功:", result.user);
+        }
+    }).catch((error) => {
         console.error("リダイレクトサインイン処理エラー:", error);
+        // エラーが発生している場合は、iPhoneの画面にアラートで原因を表示
+        alert("【iPhoneログインエラー】\nエラーコード: " + error.code + "\n原因: " + error.message + "\n\n※「auth/network-request-failed」等の場合は、ブラウザのセキュリティ制限(ITP)が原因です。下の解決策を試してください。");
     });
 
     onAuthStateChanged(auth, async (user) => {
